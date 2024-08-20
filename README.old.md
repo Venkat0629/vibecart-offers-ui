@@ -1,0 +1,2 @@
+# vibecart-offers-ui
+
