@@ -1,0 +1,107 @@
+/* Base styles */
+.header-container {
+    background: linear-gradient(to right, #4a0c7a, #4b2d77, #003f73);
+    color: white;
+    position: relative; 
+    width: 100%;
+    padding: 1rem;
+    box-sizing: border-box;
+    /* Optional: Add some box shadow for better visual separation */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.header-title {
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.header-subtitle {
+    font-size: 1.50rem;
+    font-weight: 600;
+    color: #f8f9fa;
+}
+
+.user-info {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    /* Ensure spacing is adequate */
+    gap: 1rem; /* Adjust as needed */
+}
+
+.user-info .user-icon {
+    font-size: 24px;
+    color: #f8f9fa;
+}
+
+.user-info .user-name {
+    font-size: 0.875rem;
+    color: #f8f9fa;
+}
+
+.shadow {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.logout-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    color: #333;
+    border-radius: 0.25rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    padding: 0.5rem 1rem;
+    min-width: 100px;
+    font-size: 0.875rem;
+    text-align: center;
+    cursor: pointer;
+    border: 1px solid grey;
+    background: white; /* Ensure the menu has a background */
+    display: none; /* Hide by default */
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .header-title {
+        font-size: 1.5rem;
+    }
+
+    .header-subtitle {
+        font-size: 1.25rem;
+    }
+
+    .user-info {
+        /* Maintain row layout, but adjust spacing */
+        gap: 0.5rem; /* Adjust as needed */
+    }
+
+    .user-info .user-icon {
+        font-size: 20px;
+    }
+
+    .user-info .user-name {
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .header-title {
+        font-size: 1.25rem;
+    }
+
+    .header-subtitle {
+        font-size: 1rem;
+    }
+
+    .logout-menu {
+        min-width: 80px; /* Adjust width for smaller screens */
+    }
+}
+
+/* Show logout menu on hover or focus (if needed) */
+.user-info:hover .logout-menu,
+.user-info:focus-within .logout-menu {
+    display: block;
+}
