@@ -1,0 +1,59 @@
+/* Sidebar.css */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.sidebar-item {
+  margin: 10px 0;
+}
+
+.sidebar-item a {
+  text-decoration: none;
+  font-size: 18px;
+  padding: 8px;
+  display: block;
+  border-radius: 4px;
+  color: black;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.sidebar-item a.active {
+  background: linear-gradient(to right, #4a0c7a, #4b2d77, #003f73);
+  color: #ffffff;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .sidebar-container {
+    width: 150px; /* Reduced width for tablets */
+  }
+
+  .sidebar-item a {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .sidebar-container {
+    width: 100%; /* Sidebar takes full width on small screens */
+    position: relative;
+  }
+
+  .content-container {
+    padding: 10px; /* Reduce padding on small screens */
+  }
+
+  .sidebar-item a {
+    font-size: 14px;
+    padding: 6px;
+  }
+
+  .sidebar-item a.active {
+    background: linear-gradient(to right, #4a0c7a, #4b2d77, #003f73);
+    font-size: 14px;
+    padding: 6px;
+  }
+}
