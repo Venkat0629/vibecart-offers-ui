@@ -1,13 +1,33 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import axios from 'axios';
+import { setOffers, deleteOffer, deleteOffers,selectAllOffers,toggleOfferSelection } from '../Redux/deleteOfferSlice'; // Adjust the path as necessary
 
 const DeleteOffers = () => {
-  const [offers, setOffers] = useState([
-    { id: 1, offerId: 'O001', offerName: 'Offer One', offerType: 'Discount', discountType: 'price', discountValue: 20, quantity: 3, startDate: '2024-01-01', expiryDate: '2024-01-10', selected: false },
-    { id: 2, offerId: 'O002', offerName: 'Offer Two', offerType: 'Buy One Get One', discountType: 'percentage', discountValue: 30, quantity: 2, startDate: '2024-02-01', expiryDate: '2024-02-10', selected: false },
-  ]);
-
   const [searchTerm, setSearchTerm] = useState('');
   const [selectAll, setSelectAll] = useState(false);
+  const dispatch = useDispatch();
+  
+  const { offers, status, error } = useSelector((state) => state.deleteOffers);
+
+  useEffect(() => {
+    const fetchOffers = async () => {
+      const token = localStorage.getItem('token');
+      try {
+        const response = await axios.get("http://localhost:5501/vibe-cart/offers", {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        dispatch(setOffers(response.data));
+      } catch (err) {
+        console.error('Error fetching offers:', err);
+      }
+    };
+
+    fetchOffers();
+  }, [dispatch]);
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
@@ -20,33 +40,37 @@ const DeleteOffers = () => {
   const handleSelectAllChange = (e) => {
     const isChecked = e.target.checked;
     setSelectAll(isChecked);
-    setOffers((prevOffers) =>
-      prevOffers.map((offer) => ({ ...offer, selected: isChecked }))
-    );
+    dispatch(selectAllOffers(isChecked));
   };
 
   const handleCheckboxChange = (id) => {
-    setOffers((prevOffers) =>
-      prevOffers.map((offer) =>
-        offer.id === id ? { ...offer, selected: !offer.selected } : offer
-      )
-    );
+    dispatch(toggleOfferSelection(id));
   };
 
-  const handleDeleteSelected = () => {
-    setOffers((prevOffers) => prevOffers.filter((offer) => !offer.selected));
-    setSelectAll(false); 
+  const handleDeleteSelected = async () => {
+    const selectedOffers = offers.filter(offer => offer.selected).map(offer => offer.offerId);
+
+    try {
+      await dispatch(deleteOffers(selectedOffers)).unwrap();
+      setSelectAll(false);
+    } catch (error) {
+      console.error('Error deleting selected offers:', error);
+    }
   };
 
-  const handleDelete = (id) => {
-    setOffers((prevOffers) => prevOffers.filter((offer) => offer.id !== id));
+  const handleDelete = async (id) => {
+    try {
+      await dispatch(deleteOffer(id)).unwrap();
+    } catch (error) {
+      console.error('Error deleting offer:', error);
+    }
   };
 
-  const filteredOffers = offers.filter(
+  const filteredOffers = Array.isArray(offers) ? offers.filter(
     (offer) =>
       offer.offerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      offer.offerId.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+      offer.offerId.toString().includes(searchTerm.toLowerCase())
+  ) : [];
 
   return (
     <div className='deletepage-container'>
@@ -73,13 +97,10 @@ const DeleteOffers = () => {
             />
             <label htmlFor="selectAll">Select All</label>
             <button className="btn btn-danger ms-3" onClick={handleDeleteSelected}>
-            Delete Selected
-          </button>
+              Delete Selected
+            </button>
           </div>
         </div>
-     
-        
- 
         <div className="table-container">
           <table className="table table-striped table-bordered">
             <thead>
@@ -93,32 +114,36 @@ const DeleteOffers = () => {
                 <th>Quantity</th>
                 <th>Start Date</th>
                 <th>Expiry Date</th>
+                <th>Offer Status</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               {filteredOffers.length > 0 ? (
                 filteredOffers.map((offer) => (
-                  <tr key={offer.id}>
+                  <tr key={offer.offerId}>
                     <td>
                       <input
                         type="checkbox"
-                        checked={offer.selected}
-                        onChange={() => handleCheckboxChange(offer.id)}
+                        checked={offer.selected || false}
+                        onChange={() => handleCheckboxChange(offer.offerId)}
                       />
                     </td>
                     <td>{offer.offerId}</td>
                     <td>{offer.offerName}</td>
-                    <td>{offer.offerType}</td>
-                    <td>{offer.discountType}</td>
-                    <td>{offer.discountValue}</td>
-                    <td>{offer.quantity}</td>
-                    <td>{offer.startDate}</td>
-                    <td>{offer.expiryDate}</td>
+                    <td>{offer.offerType.offerType}</td>
+                    <td>{offer.offerDiscountType}</td>
+                    <td>{offer.offerDiscountType === 'FIXED_AMOUNT'
+                          ? `$${offer.offerDiscountValue}`
+                          : `${offer.offerDiscountValue}%`}</td>
+                    <td>{offer.offerQuantity}</td>
+                    <td>{offer.offerStartDate}</td>
+                    <td>{offer.offerEndDate}</td>
+                    <td>{offer.offerStatus}</td>
                     <td>
                       <button
                         className="btn btn-danger btn-sm"
-                        onClick={() => handleDelete(offer.id)}
+                        onClick={() => handleDelete(offer.offerId)}
                       >
                         Delete
                       </button>
@@ -127,7 +152,7 @@ const DeleteOffers = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="10" className="text-center">No Offers Found</td>
+                  <td colSpan="11" className="text-center">No Offers Found</td>
                 </tr>
               )}
             </tbody>

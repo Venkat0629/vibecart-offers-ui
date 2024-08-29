@@ -48,7 +48,7 @@ function Dashboard() {
               <Bar dataKey="PriceDiscounts" fill="#06eeee" />
             </BarChart>
           </ResponsiveContainer>
-          <h2>Year Wise Used Offers</h2>
+          <h3>Year Wise Used Offers</h3>
         </div>
 
         <div className="chart">
@@ -72,7 +72,7 @@ function Dashboard() {
               <Tooltip />
             </PieChart>
           </ResponsiveContainer>
-          <h2>Most Used Offer Types</h2>
+          <h3>Most Used Offer Types</h3>
         </div>
       </div>
     </div>

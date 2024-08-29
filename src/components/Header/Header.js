@@ -1,12 +1,24 @@
-import React, { useState } from 'react';
-import { FaUser } from 'react-icons/fa';
+import React, { useState, useEffect } from 'react';
+import { FaUser, FaSignOutAlt } from 'react-icons/fa';
 import './Header.css';
 
-const Header = ({ isLoggedIn, onLogout }) => {
-    const [showLogout, setShowLogout] = useState(false);
+const Header = ({ onLogout, isLoggedIn }) => {
+    const [username, setUsername] = useState('');
 
-    const handleUserClick = () => {
-        setShowLogout(prevShowLogout => !prevShowLogout);
+    useEffect(() => {
+        const storedUsername = localStorage.getItem('username');
+        if (storedUsername) {
+            setUsername(storedUsername);
+        }
+    }, []);
+
+    const handleLogout = () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('username');
+        setUsername(''); // Clear the username from state
+        if (onLogout) {
+            onLogout(); // Call the onLogout function passed as a prop
+        }
     };
 
     return (
@@ -19,14 +31,16 @@ const Header = ({ isLoggedIn, onLogout }) => {
                 Offer Management System
             </div>
 
-            <div className="d-flex align-items-center">
-                <div className="user-info d-flex flex-column align-items-center" onClick={handleUserClick}>
+            <div className="d-flex align-items-center header-icons">
+                <div className="user-info d-flex flex-column align-items-center">
                     <FaUser className="user-icon" />
                     <span className="user-name">My Account</span>
-                    {isLoggedIn && showLogout && (
-                        <div className="logout-menu">
-                            <span className="logout" onClick={onLogout}>Logout</span>
-                        </div>
+                </div>
+                <div>
+                    {isLoggedIn && (
+                        <button onClick={handleLogout} className="logout-button">
+                            <FaSignOutAlt className="logout-icon" /><span className='logout-btn'>Logout</span>
+                        </button>
                     )}
                 </div>
             </div>

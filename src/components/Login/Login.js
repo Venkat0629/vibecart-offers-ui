@@ -1,15 +1,19 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { useDispatch } from 'react-redux';
+import { login } from '../Redux/authSlice';
 import './Login.css';
 
-const Login = ({ onLogin }) => {
+const Login = () => {
   const [formData, setFormData] = useState({
-    email: '',
+    username: '',
     password: '',
-    role: 'user',
+    role: 'ROLE_ADMIN',
   });
-  const [errors, setErrors] = useState({ email: '', password: '' });
+  const [errors, setErrors] = useState({ username: '', password: '', auth: '' });
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -20,14 +24,11 @@ const Login = ({ onLogin }) => {
   };
 
   const validateForm = () => {
-    const newErrors = { email: '', password: '' };
+    const newErrors = { username: '', password: '' };
     let isValid = true;
 
-    if (!formData.email) {
-      newErrors.email = 'Email ID is required';
-      isValid = false;
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Email ID is invalid';
+    if (!formData.username) {
+      newErrors.username = 'Username is required';
       isValid = false;
     }
 
@@ -40,14 +41,28 @@ const Login = ({ onLogin }) => {
     return isValid;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(errors);
-
+    setErrors({ username: '', password: '', auth: '' });
     if (validateForm()) {
-      onLogin();
-      console.log(formData);
-      navigate("/dashboard");
+      try {
+        const response = await axios.post('http://localhost:5501/vibe-cart/offers/login', {
+          username: formData.username,
+          password: formData.password,
+        });
+
+        const token = response.data.message; // Extract the token from the message field
+        const { username } = formData;
+        localStorage.setItem('token', token); 
+        localStorage.setItem('username', username); 
+        dispatch(login()); // Dispatch login action
+        navigate('/dashboard'); // Redirect to dashboard
+      } catch (error) {
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          auth: 'Invalid username or password',
+        }));
+      }
     }
   };
 
@@ -57,16 +72,16 @@ const Login = ({ onLogin }) => {
         <h2 className="card-title text-center mb-4">Login</h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
-            <label htmlFor="email" className="form-label">Email ID</label>
+            <label htmlFor="username" className="form-label">Username</label>
             <input
-              type="email"
+              type="text"
               className="form-control"
-              id="email"
-              name="email"
-              value={formData.email}
+              id="username"
+              name="username"
+              value={formData.username}
               onChange={handleChange}
             />
-            {errors.email && <div className="error-message">{errors.email}</div>}
+            {errors.username && <div className="error-message">{errors.username}</div>}
           </div>
           <div className="mb-3">
             <label htmlFor="password" className="form-label">Password</label>
@@ -89,10 +104,11 @@ const Login = ({ onLogin }) => {
               value={formData.role}
               onChange={handleChange}
             >
-              <option value="admin">Admin</option>
+              <option value="ROLE_ADMIN">ROLE_ADMIN</option>
               <option value="master">Master</option>
             </select>
           </div>
+          {errors.auth && <div className="error-message">{errors.auth}</div>}
           <button type="submit" className="btn btn-primary w-100">Login</button>
         </form>
       </div>

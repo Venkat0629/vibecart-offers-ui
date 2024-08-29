@@ -1,53 +1,53 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchOffers, updateOffer, updateMultipleOffers, selectAllOffers, toggleOfferSelection, setToken } from '../Redux/updateOfferSlice'; // Adjust the path
 import './Offer.css';
 import { FaEdit, FaCheck } from "react-icons/fa";
 import { MdOutlineCancel } from "react-icons/md";
 
-const initialOffers = [
-  { id: 1, offerId: 'O001', offerName: 'Offer One', offerType: 'Discount', discountType: 'price', discountValue: 20, quantity: 3, startDate: '2024-01-01', expiryDate: '2024-01-10', selected: false },
-  { id: 2, offerId: 'O002', offerName: 'Offer Two', offerType: 'Buy One Get One', discountType: 'percentage', discountValue: 30, quantity: 2, startDate: '2024-02-01', expiryDate: '2024-02-10', selected: false },
-];
-
 const UpdateOffers = () => {
-  const [offers, setOffers] = useState(initialOffers);
+  const dispatch = useDispatch();
+  const { offers, status, error, jwtToken } = useSelector(state => state.updateOffers);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectAll, setSelectAll] = useState(false);
   const [editingOfferId, setEditingOfferId] = useState(null);
   const [editableFields, setEditableFields] = useState({});
 
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    dispatch(setToken(token));
+    dispatch(fetchOffers(token));
+  }, [dispatch]);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setEditableFields(prevFields => ({ ...prevFields, [name]: value }));
+    setEditableFields(prevFields => ({
+      ...prevFields,
+      [name]: name === 'offerDiscountValue' ? parseFloat(value) : value
+    }));
   };
 
   const handleSelectAllChange = (e) => {
     const { checked } = e.target;
-    setSelectAll(checked);
-    setOffers(prevOffers =>
-      prevOffers.map(offer => ({ ...offer, selected: checked }))
-    );
+    dispatch(selectAllOffers(checked));
   };
 
   const handleCheckboxChange = (id) => {
-    setOffers(prevOffers =>
-      prevOffers.map(offer =>
-        offer.id === id ? { ...offer, selected: !offer.selected } : offer
-      )
-    );
+    dispatch(toggleOfferSelection(id));
   };
 
   const handleEdit = (id) => {
-    const offerToEdit = offers.find(offer => offer.id === id);
+    const offerToEdit = offers.find(offer => offer.offerId === id);
     setEditingOfferId(id);
     setEditableFields({ ...offerToEdit });
   };
 
   const handleUpdate = () => {
-    setOffers(prevOffers =>
-      prevOffers.map(offer =>
-        offer.id === editingOfferId ? { ...editableFields } : offer
-      )
-    );
+    const dataToSend = {
+      ...editableFields,
+      offerQuantity: Number(editableFields.offerQuantity),
+      offerDiscountValue: parseFloat(editableFields.offerDiscountValue),
+    };
+    dispatch(updateOffer({ id: editingOfferId, data: dataToSend, token: jwtToken }));
     cancelEdit();
   };
 
@@ -57,20 +57,19 @@ const UpdateOffers = () => {
   };
 
   const handleSearch = () => {
-    console.log('Search term:', searchTerm);
+    // Implement search logic
   };
 
   const handleUpdateSelected = () => {
-    const selectedOffers = offers.filter(offer => offer.selected);
-    console.log('Selected offers for bulk update:', selectedOffers);
+    const selectedOffers = offers.filter(offer => offer.selected).map(offer => offer.offerId);
+    dispatch(updateMultipleOffers({ ids: selectedOffers, data: editableFields, token: jwtToken }));
   };
 
   const filteredOffers = offers.filter(
     (offer) =>
       offer.offerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      offer.offerId.toLowerCase().includes(searchTerm.toLowerCase())
+      offer.offerId.toString().toLowerCase().includes(searchTerm.toLowerCase())
   );
-  
 
   const renderEditableCell = (name, value, type = 'text') => (
     <input
@@ -79,11 +78,12 @@ const UpdateOffers = () => {
       value={editableFields[name] || ''}
       onChange={handleInputChange}
       className="form-control"
+      step={type === 'number' ? 'any' : undefined} // Allow decimals for number inputs
     />
   );
 
   return (
-    <div className='updatepage-container'>
+    <div className=''>
       <div className="container mt-5">
         <div className="d-flex justify-content-between mb-3">
           <div className="d-flex">
@@ -102,7 +102,7 @@ const UpdateOffers = () => {
             <input
               type="checkbox"
               id="selectAll"
-              checked={selectAll}
+              checked={offers.every(offer => offer.selected)}
               onChange={handleSelectAllChange}
             />
             <label htmlFor="selectAll" className="ms-2">Select All</label>
@@ -121,93 +121,105 @@ const UpdateOffers = () => {
                 <th>Offer Type</th>
                 <th>Discount Type</th>
                 <th>Discount Value</th>
-                <th>Quantity</th>
+                <th>Offer Quantity</th>
                 <th>Start Date</th>
                 <th>Expiry Date</th>
-                {/* <th>Offer Status</th> */}
+                <th>Offer Status</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               {filteredOffers.length > 0 ? (
                 filteredOffers.map(offer => (
-                  <tr key={offer.id}>
+                  <tr key={offer.offerId}>
                     <td>
                       <input
                         type="checkbox"
-                        checked={offer.selected}
-                        onChange={() => handleCheckboxChange(offer.id)}
+                        checked={offer.selected || false}
+                        onChange={() => handleCheckboxChange(offer.offerId)}
                       />
                     </td>
                     <td>{offer.offerId}</td>
                     <td>
-                      {editingOfferId === offer.id
+                      {editingOfferId === offer.offerId
                         ? renderEditableCell('offerName', offer.offerName)
                         : offer.offerName}
                     </td>
                     <td>
-                      {editingOfferId === offer.id
-                        ? renderEditableCell('offerType', offer.offerType)
-                        : offer.offerType}
+                      {editingOfferId === offer.offerId
+                        ? (
+                          <select
+                            name="offerType"
+                            value={editableFields.offerType?.offerType || ''}
+                            onChange={(e) => setEditableFields(prevFields => ({
+                              ...prevFields,
+                              offerType: { ...prevFields.offerType, offerType: e.target.value }
+                            }))}
+                            className="form-control"
+                          >
+                            <option value="">Select Offer Type</option>
+                            <option value="ITEMS_OFFER">ITEMS_OFFER</option>
+                            <option value="LIMITED_TIME_OFFER">LIMITED_TIME_OFFER</option>
+                            <option value="ON_BILL_AMOUNT">ON_BILL_AMOUNT</option>
+                            <option value="DISCOUNT_COUPONS">DISCOUNT_COUPONS</option>
+                          </select>
+                        )
+                        : offer.offerType.offerType}
                     </td>
                     <td>
-                      {editingOfferId === offer.id
-                        ? renderEditableCell('discountType', offer.discountType)
-                        : offer.discountType}
-                    </td>
-                    <td>
-                      {editingOfferId === offer.id
-                        ? renderEditableCell('discountValue', offer.discountValue, 'number')
-                        : offer.discountType === 'price'
-                        ? `$${offer.discountValue}`
-                        : `${offer.discountValue}%`}
-                    </td>
-                    <td>
-                      {editingOfferId === offer.id
-                        ? renderEditableCell('quantity', offer.quantity, 'number')
-                        : offer.quantity}
-                    </td>
-                    <td>
-                      {editingOfferId === offer.id
-                        ? renderEditableCell('startDate', offer.startDate, 'date')
-                        : offer.startDate}
-                    </td>
-                    <td>
-                      {editingOfferId === offer.id
-                        ? renderEditableCell('expiryDate', offer.expiryDate, 'date')
-                        : offer.expiryDate}
-                    </td>
-                    {/* <td>
-                      {editingOfferId === offer.id ? (
+                      {editingOfferId === offer.offerId ? (
                         <select
-                          name="offerStatus"
-                          value={editableFields.offerStatus || 'Active'}
+                          name="offerDiscountType"
+                          value={editableFields.offerDiscountType || ''}
                           onChange={handleInputChange}
                           className="form-control"
                         >
-                          <option value="InActive">In Active</option>
-                          <option value="Active">Active</option>
-                          <option value="Deactivate">Deactivate</option>
+                          <option value="">Select Discount Type</option>
+                          <option value="FIXED_AMOUNT">PRICE</option>
+                          <option value="PERCENTAGE">PERCENTAGE</option>
                         </select>
                       ) : (
-                        offer.offerStatus
+                        offer.offerDiscountType
                       )}
-                    </td> */}
+                    </td>
                     <td>
-                      {editingOfferId === offer.id ? (
+                      {editingOfferId === offer.offerId
+                        ? renderEditableCell('offerDiscountValue', offer.offerDiscountValue, 'number')
+                        : offer.offerDiscountType === 'FIXED_AMOUNT'
+                          ? `$${offer.offerDiscountValue}`
+                          : `${offer.offerDiscountValue}%`}
+                    </td>
+                    <td>
+                      {editingOfferId === offer.offerId
+                        ? renderEditableCell('offerQuantity', offer.offerQuantity, 'number')
+                        : offer.offerQuantity}
+                    </td>
+                    <td>
+                      {editingOfferId === offer.offerId
+                        ? renderEditableCell('offerStartDate', offer.offerStartDate, 'date')
+                        : offer.offerStartDate}
+                    </td>
+                    <td>
+                      {editingOfferId === offer.offerId
+                        ? renderEditableCell('offerEndDate', offer.offerEndDate, 'date')
+                        : offer.offerEndDate}
+                    </td>
+                    <td>{offer.offerStatus}</td>
+                    <td>
+                      {editingOfferId === offer.offerId ? (
                         <div className='d-flex'>
                           <button className="btn btn-success btn-sm me-2" onClick={handleUpdate}><FaCheck /></button>
                           <button className="btn btn-danger btn-sm" onClick={cancelEdit}><MdOutlineCancel size={24} /></button>
                         </div>
                       ) : (
-                        <button className="btn btn-info btn-sm me-2" onClick={() => handleEdit(offer.id)}><FaEdit /></button>
+                        <button className="btn btn-primary btn-sm" onClick={() => handleEdit(offer.offerId)}><FaEdit /></button>
                       )}
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="11" className="text-center">No Offers Found</td>
+                  <td colSpan="11" className="text-center">No offers found</td>
                 </tr>
               )}
             </tbody>

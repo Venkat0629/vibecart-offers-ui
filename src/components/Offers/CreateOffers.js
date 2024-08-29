@@ -1,69 +1,112 @@
-import React, { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { setOfferDetails, setErrors, setSkuValidationError } from '../Redux/offerSlice';
-import './Offer.css';
+import React, { useEffect, useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { createOffer, resetForm, setOfferDetails } from '../Redux/offerSlice';
+import { MdCancel } from "react-icons/md";
+import { IoAddCircleSharp } from "react-icons/io5";
 
 const CreateOffer = () => {
   const dispatch = useDispatch();
-  const offerDetails = useSelector((state) => state.offer.offerDetails);
-  const formErrors = useSelector((state) => state.offer.errors);
-  const skuValidationError = useSelector((state) => state.offer.skuValidationError);
+  const { offerDetails, loading, error, success } = useSelector((state) => state.offers);
+  const [formErrors, setFormErrors] = useState({});
+  const [skuId, setSkuId] = useState('');
+  const [skuValidationError, setSkuValidationError] = useState('');
+  const [couponCode, setCouponCode] = useState('');
 
   const handleInputChange = (e) => {
-    const { id, value } = e.target;
-    dispatch(setOfferDetails({ ...offerDetails, [id]: value }));
+    const { id, value, type } = e.target;
+    const newValue = type === 'number' ? Number(value) : value;
+  
+    if (id === 'offerType') {
+      dispatch(setOfferDetails({
+        offerType: {
+          ...offerDetails.offerType,
+          offerType: newValue,
+          skuIds: [],
+          couponCode: ''
+        }
+      }));
+    } else if (id === 'couponCode') {
+      setCouponCode(newValue);
+    } else {
+      dispatch(setOfferDetails({ [id]: newValue }));
+    }
+  };
+  
+
+  const validateAndAddSku = () => {
+    if (!skuId || skuId <= 0) {
+      setSkuValidationError('Valid SKU ID is required.');
+    } else {
+      setSkuValidationError('');
+      dispatch(setOfferDetails({
+        offerType: {
+          ...offerDetails.offerType,
+          skuIds: [...(offerDetails.offerType.skuIds || []), skuId]
+        }
+      }));
+      setSkuId('');
+    }
   };
 
-  const validateSkuId = async () => {
-    if (offerDetails.skuId) {
-      try {
-        const response = await fetch(`your-api-endpoint/${offerDetails.skuId}`);
-        if (!response.ok) {
-          throw new Error('SKU ID not found');
-        }
-        dispatch(setSkuValidationError('')); // Clear error if valid
-      } catch (error) {
-        dispatch(setSkuValidationError('Invalid SKU ID'));
+  const removeSku = (index) => {
+    const updatedSkus = offerDetails.offerType.skuIds.filter((_, idx) => idx !== index);
+    dispatch(setOfferDetails({
+      offerType: {
+        ...offerDetails.offerType,
+        skuIds: updatedSkus,
       }
-    }
+    }));
   };
 
   const validateForm = () => {
     const errors = {};
 
-    if (!offerDetails.offerId) errors.offerId = 'Offer ID is required.';
     if (!offerDetails.offerName) errors.offerName = 'Offer Name is required.';
-    if (!offerDetails.offerType) errors.offerType = 'Offer Type is required.';
-    if (!offerDetails.discountType) errors.discountType = 'Discount Type is required.';
-    if (offerDetails.discountType && !offerDetails.discountValue) {
-      errors.discountValue = `${offerDetails.discountType === 'price' ? 'Discount Amount' : 'Discount Percentage'} is required.`;
+    if (!offerDetails.offerType.offerType) errors.offerType = 'Offer Type is required.';
+    if (!offerDetails.offerDiscountType) errors.offerDiscountType = 'Discount Type is required.';
+    if (offerDetails.offerDiscountType && offerDetails.offerDiscountValue <= 0) {
+      errors.offerDiscountValue = `${offerDetails.offerDiscountType === 'FIXED_AMOUNT' ? 'Discount Amount' : 'Discount Percentage'} is required and must be greater than 0.`;
     }
-    if (!offerDetails.quantity) errors.quantity = 'Quantity is required.';
-    if (!offerDetails.startDate) errors.startDate = 'Start Date is required.';
-    if (!offerDetails.expiryDate) errors.expiryDate = 'Expiry Date is required.';
+    if (offerDetails.offerQuantity <= 0) errors.offerQuantity = 'Quantity is required and must be greater than 0.';
+    if (!offerDetails.offerStartDate) errors.offerStartDate = 'Start Date is required.';
+    if (!offerDetails.offerEndDate) errors.offerEndDate = 'End Date is required.';
 
-    if (offerDetails.startDate && offerDetails.expiryDate) {
-      if (new Date(offerDetails.startDate) >= new Date(offerDetails.expiryDate)) {
-        errors.expiryDate = 'Expiry Date must be greater than Start Date.';
+    if (offerDetails.offerStartDate && offerDetails.offerEndDate) {
+      if (new Date(offerDetails.offerStartDate) >= new Date(offerDetails.offerEndDate)) {
+        errors.offerEndDate = 'End Date must be greater than Start Date.';
       }
     }
 
-    dispatch(setErrors(errors));
+    if (offerDetails.offerType.offerType === 'DISCOUNT_COUPONS' && !couponCode) {
+      errors.couponCode = 'Coupon Code is required.';
+    }
+
+    setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
-  const handleFormSubmit = async (e) => {
+  const handleFormSubmit = (e) => {
     e.preventDefault();
-
     if (validateForm()) {
-      await validateSkuId();
-
-      if (!skuValidationError) {
-        alert('Offer created successfully');
-        console.log(offerDetails);
-      }
+      const updatedOfferDetails = {
+        ...offerDetails,
+        offerType: {
+          ...offerDetails.offerType,
+          couponCode: offerDetails.offerType.offerType === 'DISCOUNT_COUPONS' ? couponCode : undefined,
+        },
+      };
+        console.log('Offer details to be posted:', updatedOfferDetails);
+        dispatch(createOffer(updatedOfferDetails));
     }
   };
+  
+
+  useEffect(() => {
+    if (success) {
+      alert('Offer created successfully');
+      dispatch(resetForm());
+    }
+  }, [success, dispatch]);
 
   return (
     <div className="offer-container">
@@ -82,97 +125,127 @@ const CreateOffer = () => {
           </div>
 
           <div className="form-group">
+            <label htmlFor="offerDescription">Offer Description</label>
+            <textarea
+              id="offerDescription"
+              value={offerDetails.offerDescription}
+              onChange={handleInputChange}
+            />
+          </div>
+
+          <div className="form-group">
             <label htmlFor="offerType">Offer Type</label>
             <select
               id="offerType"
-              value={offerDetails.offerType}
+              value={offerDetails.offerType.offerType}
               onChange={handleInputChange}
             >
               <option value="">Select Offer Type</option>
-              <option value="ProductOffers">Product Offers</option>
-              <option value="SeasonalPromotion">Seasonal Promotion</option>
-              <option value="PriceDiscounts">Price Discounts</option>
+              <option value="ITEMS_OFFER">ITEMS_OFFER</option>
+              <option value="LIMITED_TIME_OFFER">LIMITED_TIME_OFFER</option>
+              <option value="ON_BILL_AMOUNT">ON_BILL_AMOUNT</option>
+              <option value="DISCOUNT_COUPONS">DISCOUNT_COUPONS</option>
             </select>
             {formErrors.offerType && <span className="error">{formErrors.offerType}</span>}
           </div>
 
-          {/* Conditionally render the SKU ID field */}
-          {offerDetails.offerType && (
+          {(offerDetails.offerType.offerType === 'ITEMS_OFFER' || offerDetails.offerType.offerType === 'LIMITED_TIME_OFFER') && (
+            <div className="form-group sku-input-group">
+              <label htmlFor="skuIds">SKU ID</label>
+              <div className="input-icon-wrapper">
+                <input
+                  type="number"
+                  id="skuIds"
+                  value={skuId}
+                  onChange={(e) => setSkuId(e.target.value)}
+                />
+                <IoAddCircleSharp onClick={validateAndAddSku} className="input-icon" />
+              </div>
+              {skuValidationError && <span className="error">{skuValidationError}</span>}
+              <div className='skuids-field'>
+                {offerDetails.offerType.skuIds && offerDetails.offerType.skuIds.map((id, index) => (
+                  <div key={index} className='skuids'>
+                    {id}<MdCancel color='grey' onClick={() => removeSku(index)} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {offerDetails.offerType.offerType === 'DISCOUNT_COUPONS' && (
             <div className="form-group">
-              <label htmlFor="skuId">SKU ID</label>
+              <label htmlFor="couponCode">Coupon Code</label>
               <input
                 type="text"
-                id="skuId"
-                value={offerDetails.skuId}
-                onChange={handleInputChange}
+                id="couponCode"
+                value={couponCode}
+                onChange={(e) => setCouponCode(e.target.value)}
               />
-              {skuValidationError && <span className="error">{skuValidationError}</span>}
+              {formErrors.couponCode && <span className="error">{formErrors.couponCode}</span>}
             </div>
           )}
 
           <div className="form-group">
-            <label htmlFor="discountType">Discount Type</label>
+            <label htmlFor="offerDiscountType">Discount Type</label>
             <select
-              id="discountType"
-              value={offerDetails.discountType}
+              id="offerDiscountType"
+              value={offerDetails.offerDiscountType}
               onChange={handleInputChange}
             >
               <option value="">Select Discount Type</option>
-              <option value="price">Price</option>
-              <option value="percentage">Percentage</option>
+              <option value="FIXED_AMOUNT">FIXED_AMOUNT</option>
+              <option value="PERCENTAGE">PERCENTAGE</option>
             </select>
-            {formErrors.discountType && <span className="error">{formErrors.discountType}</span>}
+            {formErrors.offerDiscountType && <span className="error">{formErrors.offerDiscountType}</span>}
           </div>
 
-          {offerDetails.discountType && (
-            <div className="form-group">
-              <label htmlFor="discountValue">
-                {offerDetails.discountType === 'price' ? 'Discount Amount' : 'Discount Percentage'}
-              </label>
-              <input
-                type="number"
-                id="discountValue"
-                value={offerDetails.discountValue}
-                onChange={handleInputChange}
-              />
-              {formErrors.discountValue && <span className="error">{formErrors.discountValue}</span>}
-            </div>
-          )}
-
           <div className="form-group">
-            <label htmlFor="quantity">Quantity</label>
+            <label htmlFor="offerDiscountValue">
+              {offerDetails.offerDiscountType === 'FIXED_AMOUNT' ? 'Discount Amount' : 'Discount Percentage'}
+            </label>
             <input
               type="number"
-              id="quantity"
-              value={offerDetails.quantity}
+              id="offerDiscountValue"
+              value={offerDetails.offerDiscountValue}
               onChange={handleInputChange}
             />
-            {formErrors.quantity && <span className="error">{formErrors.quantity}</span>}
+            {formErrors.offerDiscountValue && <span className="error">{formErrors.offerDiscountValue}</span>}
           </div>
 
           <div className="form-group">
-            <label htmlFor="startDate">Start Date</label>
+            <label htmlFor="offerQuantity">Quantity</label>
             <input
-              type="date"
-              id="startDate"
-              value={offerDetails.startDate}
+              type="number"
+              id="offerQuantity"
+              value={offerDetails.offerQuantity}
               onChange={handleInputChange}
             />
-            {formErrors.startDate && <span className="error">{formErrors.startDate}</span>}
+            {formErrors.offerQuantity && <span className="error">{formErrors.offerQuantity}</span>}
           </div>
 
           <div className="form-group">
-            <label htmlFor="expiryDate">Expiry Date</label>
+            <label htmlFor="offerStartDate">Start Date</label>
             <input
               type="date"
-              id="expiryDate"
-              value={offerDetails.expiryDate}
+              id="offerStartDate"
+              value={offerDetails.offerStartDate}
               onChange={handleInputChange}
             />
-            {formErrors.expiryDate && <span className="error">{formErrors.expiryDate}</span>}
+            {formErrors.offerStartDate && <span className="error">{formErrors.offerStartDate}</span>}
           </div>
 
-          <button type="submit" className="btn btn-primary form-control">Create Offer</button>
+          <div className="form-group">
+            <label htmlFor="offerEndDate">End Date</label>
+            <input
+              type="date"
+              id="offerEndDate"
+              value={offerDetails.offerEndDate}
+              onChange={handleInputChange}
+            />
+            {formErrors.offerEndDate && <span className="error">{formErrors.offerEndDate}</span>}
+          </div>
+
+          <button type="submit" disabled={loading}>Create Offer</button>
         </form>
       </div>
     </div>

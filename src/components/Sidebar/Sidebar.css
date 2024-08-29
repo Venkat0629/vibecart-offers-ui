@@ -21,9 +21,9 @@
 }
 
 .sidebar-item a.active {
-  background: linear-gradient(to right, #4a0c7a, #4b2d77, #003f73);
   color: #ffffff;
-  width: 100%;
+  width: 90%;
+  background-color: #080707;
 }
 
 @media (max-width: 768px) {
