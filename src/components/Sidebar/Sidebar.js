@@ -6,16 +6,24 @@ function Sidebar() {
   return (
     <div className="sidebar">
       <div className="sidebar-item">
-        <NavLink to="/dashboard" activeClassName="active-link">Dashboard</NavLink>
+        <NavLink to="/dashboard" className={({ isActive }) => (isActive ? "active-link" : "")}>
+          Dashboard
+        </NavLink>
       </div>
       <div className="sidebar-item">
-        <NavLink to="/createOffers" activeClassName="active-link">Create Offers</NavLink>
+        <NavLink to="/createOffers" className={({ isActive }) => (isActive ? "active-link" : "")}>
+          Create Offers
+        </NavLink>
       </div>
       <div className="sidebar-item">
-        <NavLink to="/updateOffers" activeClassName="active-link">Update Offers</NavLink>
+        <NavLink to="/updateOffers" className={({ isActive }) => (isActive ? "active-link" : "")}>
+          Update Offers
+        </NavLink>
       </div>
       <div className="sidebar-item">
-        <NavLink to="/deleteOffers" activeClassName="active-link">Delete Offers</NavLink>
+        <NavLink to="/deleteOffers" className={({ isActive }) => (isActive ? "active-link" : "")}>
+          Delete Offers
+        </NavLink>
       </div>
     </div>
   );

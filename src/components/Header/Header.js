@@ -4,6 +4,7 @@ import './Header.css';
 
 const Header = ({ onLogout, isLoggedIn }) => {
     const [username, setUsername] = useState('');
+    const [dropdownOpen, setDropdownOpen] = useState(false);
 
     useEffect(() => {
         const storedUsername = localStorage.getItem('username');
@@ -13,16 +14,19 @@ const Header = ({ onLogout, isLoggedIn }) => {
     }, []);
 
     const handleLogout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('username');
-        setUsername(''); // Clear the username from state
-        if (onLogout) {
-            onLogout(); // Call the onLogout function passed as a prop
-        }
+        onLogout();
+    };
+
+    const handleMouseEnter = () => {
+        setDropdownOpen(true);
+    };
+
+    const handleMouseLeave = () => {
+        setDropdownOpen(false);
     };
 
     return (
-        <header className="header-container d-flex justify-content-between align-items-center p-3 shadow">
+        <header className="header-container">
             <div className="header-title">
                 VibeCart
             </div>
@@ -31,18 +35,23 @@ const Header = ({ onLogout, isLoggedIn }) => {
                 Offer Management System
             </div>
 
-            <div className="d-flex align-items-center header-icons">
-                <div className="user-info d-flex flex-column align-items-center">
-                    <FaUser className="user-icon" />
-                    <span className="user-name">My Account</span>
-                </div>
-                <div>
-                    {isLoggedIn && (
-                        <button onClick={handleLogout} className="logout-button">
-                            <FaSignOutAlt className="logout-icon" /><span className='logout-btn'>Logout</span>
-                        </button>
-                    )}
-                </div>
+            <div className="header-actions">
+                {isLoggedIn && (
+                    <div 
+                        className="user-info" 
+                        onMouseEnter={handleMouseEnter}
+                        onMouseLeave={handleMouseLeave}
+                        style={{display:"flex", flexDirection:"column"}}
+                    >
+                        <FaUser className="user-icon" />
+                        <span className="user-name">{username}</span>
+                        <div className={`dropdown-menu ${dropdownOpen ? 'show' : ''}`}>
+                            <a href="#" className="dropdown-item">Your Profile</a>
+                            <a href="#" className="dropdown-item">Settings</a>
+                            <a href="#" className="dropdown-item" onClick={handleLogout}>Sign out</a>
+                        </div>
+                    </div>
+                )}
             </div>
         </header>
     );

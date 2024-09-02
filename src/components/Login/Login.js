@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useDispatch } from 'react-redux';
 import { login } from '../Redux/authSlice';
-import './Login.css';
+import './Login.css'; // Ensure this file includes your custom styles
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -51,7 +51,7 @@ const Login = () => {
           password: formData.password,
         });
 
-        const token = response.data.message; // Extract the token from the message field
+        const token = response.data.message; 
         const { username } = formData;
         localStorage.setItem('token', token); 
         localStorage.setItem('username', username); 
@@ -67,15 +67,15 @@ const Login = () => {
   };
 
   return (
-    <div className="d-flex flex-column justify-content-end align-items-center loginform">
-      <div className="card p-4" style={{ maxWidth: '400px', width: '100%' }}>
-        <h2 className="card-title text-center mb-4">Login</h2>
+    <div className="login-container">
+      <div className="login-card">
+        <h2 className="login-title">Login</h2>
         <form onSubmit={handleSubmit}>
-          <div className="mb-3">
+          <div className="form-group">
             <label htmlFor="username" className="form-label">Username</label>
             <input
               type="text"
-              className="form-control"
+              className={`form-control ${errors.username ? 'error-highlight' : ''}`}
               id="username"
               name="username"
               value={formData.username}
@@ -83,11 +83,11 @@ const Login = () => {
             />
             {errors.username && <div className="error-message">{errors.username}</div>}
           </div>
-          <div className="mb-3">
+          <div className="form-group">
             <label htmlFor="password" className="form-label">Password</label>
             <input
               type="password"
-              className="form-control"
+              className={`form-control ${errors.password ? 'error-highlight' : ''}`}
               id="password"
               name="password"
               value={formData.password}
@@ -95,7 +95,7 @@ const Login = () => {
             />
             {errors.password && <div className="error-message">{errors.password}</div>}
           </div>
-          <div className="mb-3">
+          <div className="form-group">
             <label htmlFor="role" className="form-label">User Role</label>
             <select
               id="role"
@@ -108,8 +108,8 @@ const Login = () => {
               <option value="master">Master</option>
             </select>
           </div>
+          <button type="submit" className="login-button">Login</button>
           {errors.auth && <div className="error-message">{errors.auth}</div>}
-          <button type="submit" className="btn btn-primary w-100">Login</button>
         </form>
       </div>
     </div>

@@ -1,51 +1,132 @@
-.header-container {
-    background-color: black ;
+/* .header-container {
+    background-color: black;
     color: white;
+    height: 70px; 
 }
- 
+
 .header-title {
     font-size: 2rem;
     font-weight: bold;
 }
- 
+
 .header-subtitle {
     font-size: 1.25rem;
     font-weight: 600;
     color: #f8f9fa;
 }
- 
+
+.user-info {
+    position: relative; 
+}
+
 .user-info .user-icon {
     font-size: 24px;
     color: #f8f9fa;
 }
- 
+
 .user-info .user-name {
     margin-top: 0.25rem;
     font-size: 0.875rem;
     color: #f8f9fa;
 }
- 
+
 .logout-button {
-    /* display: flex; */
+    display: none;
     align-items: center;
     background: none;
     border: none;
     color: white;
     cursor: pointer;
     font-size: 1rem;
+    position: absolute;
+    top: 100%; 
+    left: 0;
+    width: 100%; 
+    padding: 0.5rem;
 }
- 
+
+.user-info:hover .logout-button {
+    display: flex;
+}
+
 .logout-icon {
     margin-right: 0.5rem;
     font-size: 1.25rem;
 }
+
 .shadow {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
-.logout-btn{
+
+.logout-btn {
     display: grid;
     padding-left: 15px;
 }
-.header-icons{
-    justify-content: space-around;
+
+.header-icons {
+    display: flex; 
+    align-items: center;
+} */
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #0F172A;
+  color: #fff;
+}
+
+.header-title {
+  font-size: 1.5em;
+}
+
+.header-subtitle {
+  font-size: 1em;
+}
+
+.header-actions {
+  position: relative;
+}
+
+.user-info {
+  cursor: pointer;
+}
+
+.user-icon {
+  margin-left: 8px;
+  height: 2rem;
+  width: 2rem;
+}
+
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: #fff;
+  color: #333;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  min-width: 150px;
+}
+
+.dropdown-menu.show {
+  display: block;
+}
+
+.dropdown-item {
+  display: block;
+  padding: 10px;
+  text-decoration: none;
+  color: #333;
+}
+
+.dropdown-item:hover {
+  background-color: #f4f4f4;
+}
+.dropdown-item.active, .dropdown-item:active {
+  /* color: var(--bs-dropdown-link-active-color); */
+  text-decoration: none;
+  /* background-color: var(--bs-dropdown-link-active-bg); */
 }

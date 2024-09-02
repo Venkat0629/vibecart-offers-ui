@@ -1,0 +1,11 @@
+:root {
+    --card-background-color: #ffffff; /* Card background color */
+    --title-color: #333; /* Title color */
+    --border-color: #ced4da; /* Border color */
+    --error-border-color: #dc3545; /* Error border color */
+    --error-text-color: #dc3545; /* Error text color */
+    --text-color: #333; /* General text color */
+    --form-control-padding: 10px; /* Padding for form controls */
+    --border-radius: 4px; /* Border radius */
+  }
+  

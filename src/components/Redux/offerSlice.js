@@ -31,7 +31,8 @@ const createOfferSlice = createSlice({
       offerDiscountValue: '',
       offerType: {
         offerType: '',
-        skuIds: [],
+        offerOn:'',
+        entityIds: [],
         couponCode: ''
       },
       offerStartDate: '',
@@ -51,7 +52,8 @@ const createOfferSlice = createSlice({
         offerDiscountValue: '',
         offerType: {
           offerType: '',
-          skuIds: [],
+          offerOn:'',
+          entityIds: [],
           couponCode: ''
         },
         offerStartDate: '',

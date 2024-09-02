@@ -1,37 +1,78 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
-import './Dashboard.css'; 
+import './Dashboard.css';
 
-const barData = [
-  { name: '2022', ProductOffers: 300, SeasonalPromotion: 200, PriceDiscounts: 100 },
-  { name: '2023', ProductOffers: 400, SeasonalPromotion: 300, PriceDiscounts: 200 },
-  { name: '2024', ProductOffers: 500, SeasonalPromotion: 400, PriceDiscounts: 300 },
-];
-
-const pieData = [
-  { name: 'Product Offers', value: 45 },
-  { name: 'Seasonal Promotion', value: 35 },
-  { name: 'Price Discounts', value: 20 },
-];
-
-const COLORS = ['#0292fa','#06eeee','#010344'];
+const COLORS = ['#0292fa', '#06eeee', '#010344'];
 
 function Dashboard() {
+  const [barData, setBarData] = useState([]);
+  const [pieData, setPieData] = useState([]);
+  const [totalOffers, setTotalOffers] = useState(0);
+  const [activeOffers, setActiveOffers] = useState(0);
+  const [expiredOffers, setExpiredOffers] = useState(0);
+
+  useEffect(() => {
+    fetch('http://localhost:5501/vibe-cart/offers')
+      .then(response => response.json())
+      .then(data => {
+        const monthlyData = data.reduce((acc, offer) => {
+          const month = new Date(offer.offerStartDate).toLocaleString('default', { month: 'short' });
+
+          if (!acc[month]) {
+            acc[month] = { name: month, ProductOffers: 0, SeasonalPromotion: 0, PriceDiscounts: 0 };
+          }
+
+          switch (offer.offerType.offerType) {
+            case 'ITEMS_OFFER':
+              acc[month].ProductOffers += 1;
+              break;
+            case 'LIMITED_TIME_OFFER':
+              acc[month].SeasonalPromotion += 1;
+              break;
+            case 'ON_BILL_AMOUNT':
+            case 'DISCOUNT_COUPONS':
+              acc[month].PriceDiscounts += 1;
+              break;
+            default:
+              break;
+          }
+
+          return acc;
+        }, {});
+
+        const barChartData = Object.values(monthlyData);
+        const pieChartData = [
+          { name: 'Product Offers', value: barChartData.reduce((sum, month) => sum + month.ProductOffers, 0) },
+          { name: 'Seasonal Promotion', value: barChartData.reduce((sum, month) => sum + month.SeasonalPromotion, 0) },
+          { name: 'Price Discounts', value: barChartData.reduce((sum, month) => sum + month.PriceDiscounts, 0) },
+        ];
+
+        setBarData(barChartData);
+        setPieData(pieChartData);
+        setTotalOffers(data.length);
+
+        const active = data.filter(offer => offer.offerStatus === "ACTIVE").length;
+        setActiveOffers(active);
+        setExpiredOffers(data.length - active);
+      })
+      .catch(error => console.error('Error fetching data:', error));
+  }, []);
+
   return (
     <div className='dashboard'>
       <div className='offers'>
-      <div>
-      <h1>456</h1>
-      <p className="offer-description">Total offers</p>
-    </div>
-    <div>
-      <h1>200</h1>
-      <p className="offer-description">Active offers</p>
-    </div>
-    <div>
-      <h1>156</h1>
-      <p className="offer-description">Expired offers</p>
-    </div>
+        <div>
+          <h1>{totalOffers}</h1>
+          <p className="offer-description">Total offers</p>
+        </div>
+        <div>
+          <h1>{activeOffers}</h1>
+          <p className="offer-description">Active offers</p>
+        </div>
+        <div>
+          <h1>{expiredOffers}</h1>
+          <p className="offer-description">Expired offers</p>
+        </div>
       </div>
 
       <div className="charts-container">
@@ -40,7 +81,7 @@ function Dashboard() {
             <BarChart data={barData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
-              <YAxis />
+              <YAxis allowDecimals={false} />  {/* This line prevents decimals from appearing on the Y-axis */}
               <Tooltip />
               <Legend />
               <Bar dataKey="ProductOffers" fill="#0292fa" />
@@ -48,7 +89,8 @@ function Dashboard() {
               <Bar dataKey="PriceDiscounts" fill="#06eeee" />
             </BarChart>
           </ResponsiveContainer>
-          <h3>Year Wise Used Offers</h3>
+
+          <h3>Last 3 Months Used Offers</h3>
         </div>
 
         <div className="chart">

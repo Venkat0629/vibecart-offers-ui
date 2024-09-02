@@ -10,7 +10,7 @@ import DeleteOffers from './components/Offers/DeleteOffers';
 import Sidebar from './components/Sidebar/Sidebar';
 import Header from './components/Header/Header';
 import Footer from './components/Footer/Footer';
-import './App.css';  // Ensure this import
+import './App.css'; 
 
 const App = () => {
   const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
@@ -31,9 +31,7 @@ const App = () => {
         <div className='content-container'>
           {isLoggedIn ? (
             <>
-              <div className='sidebar-container'>
-                <Sidebar />
-              </div>
+              <Sidebar className='sidebar' />
               <div className='main-content'>
                 <Routes>
                   <Route path="/" element={<Navigate to="/dashboard" />} />

@@ -1,9 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchOffers, updateOffer, updateMultipleOffers, selectAllOffers, toggleOfferSelection, setToken } from '../Redux/updateOfferSlice'; // Adjust the path
+import {
+  fetchOffers,
+  updateOffer,
+  updateMultipleOffers,
+  selectAllOffers,
+  toggleOfferSelection,
+  setToken
+} from '../Redux/updateOfferSlice';
 import './Offer.css';
-import { FaEdit, FaCheck } from "react-icons/fa";
-import { MdOutlineCancel } from "react-icons/md";
+import { FaEdit, FaCheck } from 'react-icons/fa';
+import { MdOutlineCancel } from 'react-icons/md';
 
 const UpdateOffers = () => {
   const dispatch = useDispatch();
@@ -83,148 +90,168 @@ const UpdateOffers = () => {
   );
 
   return (
-    <div className=''>
-      <div className="container mt-5">
-        <div className="d-flex justify-content-between mb-3">
-          <div className="d-flex">
-            <input
-              type="text"
-              className="form-control me-2"
-              placeholder="Search Offers"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <button className="btn btn-primary" onClick={handleSearch}>
-              Search
-            </button>
-          </div>
-          <div className="d-flex align-items-center">
-            <input
-              type="checkbox"
-              id="selectAll"
-              checked={offers.every(offer => offer.selected)}
-              onChange={handleSelectAllChange}
-            />
-            <label htmlFor="selectAll" className="ms-2">Select All</label>
-            <button className="btn btn-warning ms-3" onClick={handleUpdateSelected}>
-              Update All
-            </button>
-          </div>
+    <div className="update-offers-container">
+      <div className="actions-container">
+        <div className="search-container">
+          <input
+            type="text"
+            className="search-input"
+            placeholder="Search Offers"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <button className="search-button" onClick={handleSearch}>
+            Search
+          </button>
         </div>
-        <div className="table-responsive table-container">
-          <table className="table table-striped table-bordered">
-            <thead>
-              <tr>
-                <th>Select</th>
-                <th>Offer ID</th>
-                <th>Offer Name</th>
-                <th>Offer Type</th>
-                <th>Discount Type</th>
-                <th>Discount Value</th>
-                <th>Offer Quantity</th>
-                <th>Start Date</th>
-                <th>Expiry Date</th>
-                <th>Offer Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredOffers.length > 0 ? (
-                filteredOffers.map(offer => (
-                  <tr key={offer.offerId}>
-                    <td>
-                      <input
-                        type="checkbox"
-                        checked={offer.selected || false}
-                        onChange={() => handleCheckboxChange(offer.offerId)}
-                      />
-                    </td>
-                    <td>{offer.offerId}</td>
-                    <td>
-                      {editingOfferId === offer.offerId
-                        ? renderEditableCell('offerName', offer.offerName)
-                        : offer.offerName}
-                    </td>
-                    <td>
-                      {editingOfferId === offer.offerId
-                        ? (
-                          <select
-                            name="offerType"
-                            value={editableFields.offerType?.offerType || ''}
-                            onChange={(e) => setEditableFields(prevFields => ({
-                              ...prevFields,
-                              offerType: { ...prevFields.offerType, offerType: e.target.value }
-                            }))}
-                            className="form-control"
-                          >
-                            <option value="">Select Offer Type</option>
-                            <option value="ITEMS_OFFER">ITEMS_OFFER</option>
-                            <option value="LIMITED_TIME_OFFER">LIMITED_TIME_OFFER</option>
-                            <option value="ON_BILL_AMOUNT">ON_BILL_AMOUNT</option>
-                            <option value="DISCOUNT_COUPONS">DISCOUNT_COUPONS</option>
-                          </select>
-                        )
-                        : offer.offerType.offerType}
-                    </td>
-                    <td>
-                      {editingOfferId === offer.offerId ? (
-                        <select
-                          name="offerDiscountType"
-                          value={editableFields.offerDiscountType || ''}
-                          onChange={handleInputChange}
-                          className="form-control"
-                        >
-                          <option value="">Select Discount Type</option>
-                          <option value="FIXED_AMOUNT">PRICE</option>
-                          <option value="PERCENTAGE">PERCENTAGE</option>
-                        </select>
-                      ) : (
-                        offer.offerDiscountType
-                      )}
-                    </td>
-                    <td>
-                      {editingOfferId === offer.offerId
-                        ? renderEditableCell('offerDiscountValue', offer.offerDiscountValue, 'number')
-                        : offer.offerDiscountType === 'FIXED_AMOUNT'
-                          ? `$${offer.offerDiscountValue}`
-                          : `${offer.offerDiscountValue}%`}
-                    </td>
-                    <td>
-                      {editingOfferId === offer.offerId
-                        ? renderEditableCell('offerQuantity', offer.offerQuantity, 'number')
-                        : offer.offerQuantity}
-                    </td>
-                    <td>
-                      {editingOfferId === offer.offerId
-                        ? renderEditableCell('offerStartDate', offer.offerStartDate, 'date')
-                        : offer.offerStartDate}
-                    </td>
-                    <td>
-                      {editingOfferId === offer.offerId
-                        ? renderEditableCell('offerEndDate', offer.offerEndDate, 'date')
-                        : offer.offerEndDate}
-                    </td>
-                    <td>{offer.offerStatus}</td>
-                    <td>
-                      {editingOfferId === offer.offerId ? (
-                        <div className='d-flex'>
-                          <button className="btn btn-success btn-sm me-2" onClick={handleUpdate}><FaCheck /></button>
-                          <button className="btn btn-danger btn-sm" onClick={cancelEdit}><MdOutlineCancel size={24} /></button>
-                        </div>
-                      ) : (
-                        <button className="btn btn-primary btn-sm" onClick={() => handleEdit(offer.offerId)}><FaEdit /></button>
-                      )}
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="11" className="text-center">No offers found</td>
+        <div className="select-all-container">
+          <input
+            type="checkbox"
+            id="selectAll"
+            checked={offers.every(offer => offer.selected)}
+            onChange={handleSelectAllChange}
+          />
+          <label htmlFor="selectAll" className="select-all-label">
+            Select All
+          </label>
+          <button className="update-all-button" onClick={handleUpdateSelected}>
+            Update All
+          </button>
+        </div>
+      </div>
+      <div className="table-container">
+        <table className="offers-table">
+          <thead>
+            <tr>
+              <th>Select</th>
+              <th>Offer ID</th>
+              <th>Offer Name</th>
+              <th>Offer Type</th>
+              <th>Discount Type</th>
+              <th>Discount Value</th>
+              <th>Offer Quantity</th>
+              <th>Start Date</th>
+              <th>Expiry Date</th>
+              <th>Offer Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredOffers.length > 0 ? (
+              filteredOffers.map((offer) => (
+                <tr key={offer.offerId}>
+                  <td>
+                    <input
+                      type="checkbox"
+                      checked={offer.selected || false}
+                      onChange={() => handleCheckboxChange(offer.offerId)}
+                    />
+                  </td>
+                  <td>{offer.offerId}</td>
+                  <td>
+                    {editingOfferId === offer.offerId
+                      ? renderEditableCell('offerName', offer.offerName)
+                      : offer.offerName}
+                  </td>
+                  <td>
+                    {editingOfferId === offer.offerId ? (
+                      <select
+                        name="offerType"
+                        value={editableFields.offerType?.offerType || ''}
+                        onChange={(e) =>
+                          setEditableFields((prevFields) => ({
+                            ...prevFields,
+                            offerType: { ...prevFields.offerType, offerType: e.target.value },
+                          }))
+                        }
+                        className="form-control"
+                      >
+                        <option value="">Select Offer Type</option>
+                        <option value="ITEMS_OFFER">ITEMS_OFFER</option>
+                        <option value="LIMITED_TIME_OFFER">LIMITED_TIME_OFFER</option>
+                        <option value="ON_BILL_AMOUNT">ON_BILL_AMOUNT</option>
+                        <option value="DISCOUNT_COUPONS">DISCOUNT_COUPONS</option>
+                      </select>
+                    ) : (
+                      offer.offerType.offerType
+                    )}
+                  </td>
+                  <td>
+                    {editingOfferId === offer.offerId ? (
+                      <select
+                        name="offerDiscountType"
+                        value={editableFields.offerDiscountType || ''}
+                        onChange={handleInputChange}
+                        className="form-control"
+                      >
+                        <option value="">Select Discount Type</option>
+                        <option value="FIXED_AMOUNT">FIXED_AMOUNT</option>
+                        <option value="PERCENTAGE">PERCENTAGE</option>
+                      </select>
+                    ) : (
+                      offer.offerDiscountType
+                    )}
+                  </td>
+                  <td>
+                    {editingOfferId === offer.offerId
+                      ? renderEditableCell('offerDiscountValue', offer.offerDiscountValue, 'number')
+                      : offer.offerDiscountType === 'FIXED_AMOUNT'
+                      ? `$${offer.offerDiscountValue}`
+                      : `${offer.offerDiscountValue}%`}
+                  </td>
+                  <td>
+                    {editingOfferId === offer.offerId
+                      ? renderEditableCell('offerQuantity', offer.offerQuantity, 'number')
+                      : offer.offerQuantity}
+                  </td>
+                  <td>
+                    {editingOfferId === offer.offerId
+                      ? renderEditableCell('offerStartDate', offer.offerStartDate, 'date')
+                      : offer.offerStartDate}
+                  </td>
+                  <td>
+                    {editingOfferId === offer.offerId
+                      ? renderEditableCell('offerEndDate', offer.offerEndDate, 'date')
+                      : offer.offerEndDate}
+                  </td>
+                  <td>
+                    {editingOfferId === offer.offerId ? (
+                      <select
+                        name="offerStatus"
+                        value={editableFields.offerStatus || ''}
+                        onChange={handleInputChange}
+                        className="form-control"
+                      >
+                        <option value="ACTIVE">Active</option>
+                        <option value="INACTIVE">Inactive</option>
+                      </select>
+                    ) : (
+                      offer.offerStatus
+                    )}
+                  </td>
+                  <td>
+                    {editingOfferId === offer.offerId ? (
+                      <div className="actions-buttons">
+                        <FaCheck onClick={handleUpdate} size={24} color="green" />
+                        <MdOutlineCancel onClick={cancelEdit} size={24} color="red" />
+                      </div>
+                    ) : (
+                      <button className="edit-button" onClick={() => handleEdit(offer.offerId)}>
+                         Edit
+                      </button>
+                    )}
+                  </td>
                 </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="11" className="no-offers">
+                  No offers found
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
     </div>
   );

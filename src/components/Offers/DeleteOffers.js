@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
-import { setOffers, deleteOffer, deleteOffers,selectAllOffers,toggleOfferSelection } from '../Redux/deleteOfferSlice'; // Adjust the path as necessary
+import { setOffers, deleteOffer, deleteOffers, selectAllOffers, toggleOfferSelection } from '../Redux/deleteOfferSlice'; // Adjust the path as necessary
+import './Offer.css'; 
+import { RiDeleteBin6Line } from "react-icons/ri";
 
 const DeleteOffers = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -74,21 +76,21 @@ const DeleteOffers = () => {
 
   return (
     <div className='deletepage-container'>
-      <div className="container mt-5">
-        <div className="d-flex justify-content-between mb-3">
-          <div className="d-flex">
+      <div className="deletepage-content">
+        <div className="search-and-select">
+          <div className="search-container">
             <input
               type="text"
-              className="form-control me-2"
+              className="search-input"
               placeholder="Search Offers"
               value={searchTerm}
               onChange={handleSearchChange}
             />
-            <button className="btn btn-primary" onClick={handleSearch}>
+            <button className="search-button" onClick={handleSearch}>
               Search
             </button>
           </div>
-          <div className="d-flex align-items-center">
+          <div className="select-all-container">
             <input
               type="checkbox"
               id="selectAll"
@@ -96,13 +98,13 @@ const DeleteOffers = () => {
               onChange={handleSelectAllChange}
             />
             <label htmlFor="selectAll">Select All</label>
-            <button className="btn btn-danger ms-3" onClick={handleDeleteSelected}>
+            <button className="delete-selected-button" onClick={handleDeleteSelected}>
               Delete Selected
             </button>
           </div>
         </div>
         <div className="table-container">
-          <table className="table table-striped table-bordered">
+          <table className="offers-table">
             <thead>
               <tr>
                 <th>Select</th>
@@ -141,18 +143,14 @@ const DeleteOffers = () => {
                     <td>{offer.offerEndDate}</td>
                     <td>{offer.offerStatus}</td>
                     <td>
-                      <button
-                        className="btn btn-danger btn-sm"
-                        onClick={() => handleDelete(offer.offerId)}
-                      >
-                        Delete
-                      </button>
+                     < RiDeleteBin6Line  className="delete-button"
+                        onClick={() => handleDelete(offer.offerId)} size={24} color='red'/>
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="11" className="text-center">No Offers Found</td>
+                  <td colSpan="11" className="no-offers">No Offers Found</td>
                 </tr>
               )}
             </tbody>
