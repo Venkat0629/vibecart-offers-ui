@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { FaUser, FaSignOutAlt } from 'react-icons/fa';
 import './Header.css';
-
-const Header = ({ onLogout, isLoggedIn }) => {
+import { FaRegUserCircle } from "react-icons/fa";
+const Header = ({ onLogout, isLoggedIn, isLoginPage }) => {
     const [username, setUsername] = useState('');
     const [dropdownOpen, setDropdownOpen] = useState(false);
 
@@ -15,9 +15,11 @@ const Header = ({ onLogout, isLoggedIn }) => {
 
     const handleLogout = () => {
         onLogout();
+        setDropdownOpen(false);
     };
 
     const handleMouseEnter = () => {
+        console.log(dropdownOpen)
         setDropdownOpen(true);
     };
 
@@ -28,25 +30,26 @@ const Header = ({ onLogout, isLoggedIn }) => {
     return (
         <header className="header-container">
             <div className="header-title">
-                VibeCart
+                <span className='bold'>VIBE</span><span>CART</span>
             </div>
 
-            <div className="header-subtitle">
+            <div
+                className="header-subtitle"
+                style={{ marginRight: isLoginPage ? '11%' : '8%' }}
+            >
                 Offer Management System
             </div>
 
             <div className="header-actions">
                 {isLoggedIn && (
-                    <div 
-                        className="user-info" 
+                    <div
+                        className="user-info"
                         onMouseEnter={handleMouseEnter}
                         onMouseLeave={handleMouseLeave}
-                        style={{display:"flex", flexDirection:"column"}}
                     >
-                        <FaUser className="user-icon" />
-                        <span className="user-name">{username}</span>
+                        <FaRegUserCircle className="user-icon" size={24} color='#dd1e25'/>
                         <div className={`dropdown-menu ${dropdownOpen ? 'show' : ''}`}>
-                            <a href="#" className="dropdown-item">Your Profile</a>
+                            <a href="#" className="dropdown-item">{username} Profile</a>
                             <a href="#" className="dropdown-item">Settings</a>
                             <a href="#" className="dropdown-item" onClick={handleLogout}>Sign out</a>
                         </div>

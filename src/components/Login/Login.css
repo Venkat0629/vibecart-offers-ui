@@ -108,7 +108,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background-image: url('https://tailwindui.com/img/beams-cover@95.jpg');
+  /* background-image: url('https://tailwindui.com/img/beams-cover@95.jpg'); */
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;

@@ -2,14 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 import { setOffers, deleteOffer, deleteOffers, selectAllOffers, toggleOfferSelection } from '../Redux/deleteOfferSlice'; // Adjust the path as necessary
-import './Offer.css'; 
+import './Offer.css';
 import { RiDeleteBin6Line } from "react-icons/ri";
 
 const DeleteOffers = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectAll, setSelectAll] = useState(false);
   const dispatch = useDispatch();
-  
+
   const { offers, status, error } = useSelector((state) => state.deleteOffers);
 
   useEffect(() => {
@@ -22,7 +22,10 @@ const DeleteOffers = () => {
             'Content-Type': 'application/json',
           },
         });
-        dispatch(setOffers(response.data));
+        let mydata = response.data;
+        const sortedOffers = mydata.sort((a, b) => new Date(b.offerCreatedAt) - new Date(a.offerCreatedAt));;
+        console.log(sortedOffers);
+        dispatch(setOffers(sortedOffers));
       } catch (err) {
         console.error('Error fetching offers:', err);
       }
@@ -97,27 +100,28 @@ const DeleteOffers = () => {
               checked={selectAll}
               onChange={handleSelectAllChange}
             />
-            <label htmlFor="selectAll">Select All</label>
+            <label htmlFor="selectAll" className="select-all-label">Select All</label>
             <button className="delete-selected-button" onClick={handleDeleteSelected}>
               Delete Selected
             </button>
           </div>
+
         </div>
         <div className="table-container">
           <table className="offers-table">
             <thead>
               <tr>
-                <th>Select</th>
-                <th>Offer ID</th>
-                <th>Offer Name</th>
-                <th>Offer Type</th>
-                <th>Discount Type</th>
-                <th>Discount Value</th>
-                <th>Quantity</th>
-                <th>Start Date</th>
-                <th>Expiry Date</th>
-                <th>Offer Status</th>
-                <th>Actions</th>
+              <th>Select</th>
+              <th>Offer ID</th>
+              <th>Offer Name</th>
+              <th>Offer Type</th>
+              <th>Discount Type</th>
+              <th>Discount Value</th>
+              <th>Offer Quantity</th>
+              <th>Start Date</th>
+              <th>Expiry Date</th>
+              <th>Offer Status</th>
+              <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -136,15 +140,15 @@ const DeleteOffers = () => {
                     <td>{offer.offerType.offerType}</td>
                     <td>{offer.offerDiscountType}</td>
                     <td>{offer.offerDiscountType === 'FIXED_AMOUNT'
-                          ? `$${offer.offerDiscountValue}`
-                          : `${offer.offerDiscountValue}%`}</td>
+                      ? `$${offer.offerDiscountValue}`
+                      : `${offer.offerDiscountValue}%`}</td>
                     <td>{offer.offerQuantity}</td>
                     <td>{offer.offerStartDate}</td>
                     <td>{offer.offerEndDate}</td>
                     <td>{offer.offerStatus}</td>
                     <td>
-                     < RiDeleteBin6Line  className="delete-button"
-                        onClick={() => handleDelete(offer.offerId)} size={24} color='red'/>
+                      < RiDeleteBin6Line className="delete-button"
+                        onClick={() => handleDelete(offer.offerId)} size={24} color='red' />
                     </td>
                   </tr>
                 ))

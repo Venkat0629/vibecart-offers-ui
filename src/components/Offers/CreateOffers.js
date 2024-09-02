@@ -25,7 +25,7 @@ const CreateOffer = () => {
           offerType: newValue,
           entityIds: [],
           couponCode: '',
-          offerOn: 'ITEM_IDS'
+          offerOn: 'ITEM_ID'
         }
       }));
     } else if (id === 'couponCode') {
@@ -282,7 +282,12 @@ const CreateOffer = () => {
             {/* <button type="button" onClick={() => dispatch(resetForm())} className="reset-button">Reset</button> */}
           </div>
 
-          {error && <span className="error">{error}</span>}
+          {error && (
+            <span className="error">
+              {typeof error === 'string' ? error : JSON.stringify(error)}
+            </span>
+          )}
+
         </form>
       </div>
     </div>

@@ -9,9 +9,11 @@ import {
   setToken
 } from '../Redux/updateOfferSlice';
 import './Offer.css';
-import { FaEdit, FaCheck } from 'react-icons/fa';
+import { FaCheck } from 'react-icons/fa';
 import { MdOutlineCancel } from 'react-icons/md';
-
+import { IoMdCreate } from "react-icons/io";
+import { FaCircleCheck } from "react-icons/fa6";
+import { MdCancel } from "react-icons/md";
 const UpdateOffers = () => {
   const dispatch = useDispatch();
   const { offers, status, error, jwtToken } = useSelector(state => state.updateOffers);
@@ -87,6 +89,22 @@ const UpdateOffers = () => {
       className="form-control"
       step={type === 'number' ? 'any' : undefined} // Allow decimals for number inputs
     />
+  );
+
+  const renderEditableSelect = (name, value, options) => (
+    <select
+      name={name}
+      value={editableFields[name] || ''}
+      onChange={handleInputChange}
+      className="form-control"
+    >
+      <option value="">Select Status</option>
+      {options.map(option => (
+        <option key={option.value} value={option.value}>
+          {option.label}
+        </option>
+      ))}
+    </select>
   );
 
   return (
@@ -185,7 +203,7 @@ const UpdateOffers = () => {
                         className="form-control"
                       >
                         <option value="">Select Discount Type</option>
-                        <option value="FIXED_AMOUNT">FIXED_AMOUNT</option>
+                        <option value="FIXED_AMOUNT">PRICE</option>
                         <option value="PERCENTAGE">PERCENTAGE</option>
                       </select>
                     ) : (
@@ -216,15 +234,10 @@ const UpdateOffers = () => {
                   </td>
                   <td>
                     {editingOfferId === offer.offerId ? (
-                      <select
-                        name="offerStatus"
-                        value={editableFields.offerStatus || ''}
-                        onChange={handleInputChange}
-                        className="form-control"
-                      >
-                        <option value="ACTIVE">Active</option>
-                        <option value="INACTIVE">Inactive</option>
-                      </select>
+                      renderEditableSelect('offerStatus', offer.offerStatus, [
+                        { value: 'ACTIVE', label: 'Active' },
+                        { value: 'INACTIVE', label: 'Inactive' }
+                      ])
                     ) : (
                       offer.offerStatus
                     )}
@@ -232,12 +245,12 @@ const UpdateOffers = () => {
                   <td>
                     {editingOfferId === offer.offerId ? (
                       <div className="actions-buttons">
-                        <FaCheck onClick={handleUpdate} size={24} color="green" />
-                        <MdOutlineCancel onClick={cancelEdit} size={24} color="red" />
+                        <FaCircleCheck onClick={handleUpdate} size={24} color='green' />
+                        <MdCancel onClick={cancelEdit} size={28} color='red' />
                       </div>
                     ) : (
                       <button className="edit-button" onClick={() => handleEdit(offer.offerId)}>
-                         Edit
+                        Edit
                       </button>
                     )}
                   </td>
