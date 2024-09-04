@@ -3,76 +3,103 @@ import { useSelector, useDispatch } from 'react-redux';
 import { createOffer, resetForm, setOfferDetails } from '../Redux/offerSlice';
 import { MdCancel } from "react-icons/md";
 import { IoAddCircleSharp } from "react-icons/io5";
+import axios from 'axios';
 import './Offer.css'; // Import your custom CSS file
 
 const CreateOffer = () => {
   const dispatch = useDispatch();
-  const { offerDetails, loading, error, success } = useSelector((state) => state.offers);
+  const { offerDetails = { offerItems: [] }, loading, error, success } = useSelector((state) => state.offers);
   const [formErrors, setFormErrors] = useState({});
-  const [entityId, setEntityId] = useState('');
-  const [entityValidationError, setEntityValidationError] = useState('');
-  const [couponCode, setCouponCode] = useState('');
-  const [offerOn, setOfferOn] = useState('ITEM_IDS');
+  const [newItem, setNewItem] = useState({
+    offerType: 'SKU_OFFER',
+    offerOn: 'SKU',
+    itemId: '',
+    skuId: [],
+    billAmount: 0.0,
+    couponCode: ''
+  });
+  const [availableSkus, setAvailableSkus] = useState([]);
+  const [itemValidationError, setItemValidationError] = useState('');
+  const [invalidItemError, setInvalidItemError] = useState('');
 
-  const handleInputChange = (e) => {
-    const { id, value, type } = e.target;
-    const newValue = type === 'number' ? Number(value) : value;
-
-    if (id === 'offerType') {
-      dispatch(setOfferDetails({
-        offerType: {
-          ...offerDetails.offerType,
-          offerType: newValue,
-          entityIds: [],
-          couponCode: '',
-          offerOn: 'ITEM_ID'
-        }
-      }));
-    } else if (id === 'couponCode') {
-      setCouponCode(newValue);
-    } else if (id === 'offerOn') {
-      setOfferOn(newValue);
-      dispatch(setOfferDetails({
-        offerType: {
-          ...offerDetails.offerType,
-          offerOn: newValue
-        }
-      }));
-    } else {
-      dispatch(setOfferDetails({ [id]: newValue }));
-    }
-  };
-
-  const validateAndAddEntity = () => {
-    if (!entityId || entityId <= 0) {
-      setEntityValidationError('Valid Entity ID is required.');
-    } else {
-      setEntityValidationError('');
-      dispatch(setOfferDetails({
-        offerType: {
-          ...offerDetails.offerType,
-          entityIds: [...(offerDetails.offerType.entityIds || []), entityId]
-        }
-      }));
-      setEntityId('');
-    }
-  };
-
-  const removeEntity = (index) => {
-    const updatedEntities = offerDetails.offerType.entityIds.filter((_, idx) => idx !== index);
-    dispatch(setOfferDetails({
-      offerType: {
-        ...offerDetails.offerType,
-        entityIds: updatedEntities,
+  // Fetch SKUs based on itemId
+  const fetchAvailableSkus = async (itemId) => {
+    try {
+      const response = await axios.get(`http://localhost:8080/vibecart/ecom/items/item/${itemId}/skuIDs`);
+      if (response.data.skuIDs) {
+        setAvailableSkus(response.data.skuIDs);
+        setInvalidItemError(''); // Clear any previous invalid item error
+      } else {
+        setAvailableSkus([]);
+        setInvalidItemError('Invalid item ID.'); // Set invalid item error
       }
-    }));
+    } catch (error) {
+      console.error('Error fetching SKUs:', error);
+      setAvailableSkus([]);
+      setInvalidItemError('Error fetching SKUs.'); // Handle fetch error
+    }
   };
 
+  // Handle changes to the input fields
+  const handleInputChange = (e) => {
+    const { id, value } = e.target;
+    setNewItem(prevState => ({ ...prevState, [id]: value }));
+  };
+
+  // Handle changes to the SKU selection
+  const handleSkuSelection = (e) => {
+    const { value, checked } = e.target;
+    setNewItem(prevState => {
+      const updatedSkuIds = checked
+        ? [...prevState.skuId, value]
+        : prevState.skuId.filter(sku => sku !== value);
+      return { ...prevState, skuId: updatedSkuIds };
+    });
+  };
+
+  // Add a new item to the offer
+  const validateAndAddItem = () => {
+    if (newItem.offerOn === 'ITEM') {
+      if (!newItem.itemId) {
+        setItemValidationError('Item ID is required.');
+        return;
+      }
+      if (newItem.skuId.length === 0) {
+        setItemValidationError('At least one SKU ID must be selected.');
+        return;
+      }
+    } else if (newItem.offerOn === 'SKU' && newItem.skuId.length === 0) {
+      setItemValidationError('At least one SKU ID must be selected.');
+      return;
+    }
+
+    setItemValidationError('');
+
+    dispatch(setOfferDetails({
+      offerItems: [...(offerDetails.offerItems || []), newItem]
+    }));
+
+    // Retain itemId and clear skuId
+    setNewItem(prevState => ({
+      ...prevState,
+      skuId: [],
+      billAmount: 0.0,
+      couponCode: ''
+    }));
+    setAvailableSkus([]); // Clear the available SKUs after adding an item
+  };
+
+  // Remove an item from the offer
+  const removeOfferItem = (index) => {
+    const updatedItems = (offerDetails.offerItems || []).filter((_, idx) => idx !== index);
+    dispatch(setOfferDetails({ offerItems: updatedItems }));
+  };
+
+  // Validate the entire form before submission
   const validateForm = () => {
     const errors = {};
 
     if (!offerDetails.offerName) errors.offerName = 'Offer Name is required.';
-    if (!offerDetails.offerType.offerType) errors.offerType = 'Offer Type is required.';
     if (!offerDetails.offerDiscountType) errors.offerDiscountType = 'Discount Type is required.';
     if (offerDetails.offerDiscountType && offerDetails.offerDiscountValue <= 0) {
       errors.offerDiscountValue = `${offerDetails.offerDiscountType === 'FIXED_AMOUNT' ? 'Discount Amount' : 'Discount Percentage'} is required and must be greater than 0.`;
@@ -87,29 +114,26 @@ const CreateOffer = () => {
       }
     }
 
-    if (offerDetails.offerType.offerType === 'DISCOUNT_COUPONS' && !couponCode) {
-      errors.couponCode = 'Coupon Code is required.';
-    }
-
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
+  // Handle form submission
   const handleFormSubmit = (e) => {
     e.preventDefault();
     if (validateForm()) {
-      const updatedOfferDetails = {
-        ...offerDetails,
-        offerType: {
-          ...offerDetails.offerType,
-          couponCode: offerDetails.offerType.offerType === 'DISCOUNT_COUPONS' ? couponCode : '',
-        },
-      };
-      console.log('Offer details to be posted:', updatedOfferDetails);
-      dispatch(createOffer(updatedOfferDetails));
+      dispatch(createOffer(offerDetails));
     }
   };
 
+  // Fetch SKUs when itemId changes
+  useEffect(() => {
+    if (newItem.offerOn === 'ITEM' && newItem.itemId) {
+      fetchAvailableSkus(newItem.itemId);
+    }
+  }, [newItem.itemId, newItem.offerOn]);
+
+  // Handle success response
   useEffect(() => {
     if (success) {
       alert('Offer created successfully');
@@ -127,8 +151,8 @@ const CreateOffer = () => {
             <input
               type="text"
               id="offerName"
-              value={offerDetails.offerName}
-              onChange={handleInputChange}
+              value={offerDetails.offerName || ''}
+              onChange={(e) => dispatch(setOfferDetails({ offerName: e.target.value }))}
               className={formErrors.offerName ? 'input-error' : ''}
             />
             {formErrors.offerName && <span className="error">{formErrors.offerName}</span>}
@@ -138,119 +162,116 @@ const CreateOffer = () => {
             <label htmlFor="offerDescription">Offer Description</label>
             <textarea
               id="offerDescription"
-              value={offerDetails.offerDescription}
-              onChange={handleInputChange}
+              value={offerDetails.offerDescription || ''}
+              onChange={(e) => dispatch(setOfferDetails({ offerDescription: e.target.value }))}
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="offerType">Offer Type</label>
-            <select
-              id="offerType"
-              value={offerDetails.offerType.offerType}
-              onChange={handleInputChange}
-              className={formErrors.offerType ? 'input-error' : ''}
-            >
-              <option value="">Select Offer Type</option>
-              <option value="ITEMS_OFFER">ITEMS_OFFER</option>
-              <option value="LIMITED_TIME_OFFER">LIMITED_TIME_OFFER</option>
-              <option value="ON_BILL_AMOUNT">ON_BILL_AMOUNT</option>
-              <option value="DISCOUNT_COUPONS">DISCOUNT_COUPONS</option>
-            </select>
-            {formErrors.offerType && <span className="error">{formErrors.offerType}</span>}
+            <label htmlFor="offerQuantity">Offer Quantity</label>
+            <input
+              type="number"
+              id="offerQuantity"
+              value={offerDetails.offerQuantity || ''}
+              onChange={(e) => dispatch(setOfferDetails({ offerQuantity: e.target.value }))}
+              className={formErrors.offerQuantity ? 'input-error' : ''}
+            />
+            {formErrors.offerQuantity && <span className="error">{formErrors.offerQuantity}</span>}
           </div>
-
-          {(offerDetails.offerType.offerType === 'ITEMS_OFFER' || offerDetails.offerType.offerType === 'LIMITED_TIME_OFFER') && (
-            <>
-              <div className="form-group">
-                <label htmlFor="offerOn">Offer On</label>
-                <select
-                  id="offerOn"
-                  value={offerOn}
-                  onChange={handleInputChange}
-                >
-                  <option value="ITEM_ID">ITEM_IDS</option>
-                  <option value="SKU_ID">SKU_IDS</option>
-                </select>
-              </div>
-
-              <div className="form-group entity-input-group">
-                <label htmlFor="entityIds">Entity ID</label>
-                <div className="input-icon-wrapper">
-                  <input
-                    type="number"
-                    id="entityIds"
-                    value={entityId}
-                    onChange={(e) => setEntityId(e.target.value)}
-                    className={entityValidationError ? 'input-error' : ''}
-                  />
-                  <IoAddCircleSharp onClick={validateAndAddEntity} className="input-icon" color='lightgrey' size={24} />
-                </div>
-                {entityValidationError && <span className="error">{entityValidationError}</span>}
-                <div className='entityids-field'>
-                  {offerDetails.offerType.entityIds && offerDetails.offerType.entityIds.map((id, index) => (
-                    <div key={index} className='entityids'>
-                      {id}<MdCancel color='grey' onClick={() => removeEntity(index)} />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </>
-          )}
-
-          {offerDetails.offerType.offerType === 'DISCOUNT_COUPONS' && (
-            <div className="form-group">
-              <label htmlFor="couponCode">Coupon Code</label>
-              <input
-                type="text"
-                id="couponCode"
-                value={couponCode}
-                onChange={(e) => setCouponCode(e.target.value)}
-                className={formErrors.couponCode ? 'input-error' : ''}
-              />
-              {formErrors.couponCode && <span className="error">{formErrors.couponCode}</span>}
-            </div>
-          )}
 
           <div className="form-group">
             <label htmlFor="offerDiscountType">Discount Type</label>
             <select
               id="offerDiscountType"
-              value={offerDetails.offerDiscountType}
-              onChange={handleInputChange}
+              value={offerDetails.offerDiscountType || ''}
+              onChange={(e) => dispatch(setOfferDetails({ offerDiscountType: e.target.value }))}
               className={formErrors.offerDiscountType ? 'input-error' : ''}
             >
               <option value="">Select Discount Type</option>
-              <option value="FIXED_AMOUNT">FIXED_AMOUNT</option>
-              <option value="PERCENTAGE">PERCENTAGE</option>
+              <option value="PERCENTAGE">Percentage</option>
+              <option value="FIXED_AMOUNT">Fixed Amount</option>
             </select>
             {formErrors.offerDiscountType && <span className="error">{formErrors.offerDiscountType}</span>}
           </div>
 
           <div className="form-group">
-            <label htmlFor="offerDiscountValue">
-              {offerDetails.offerDiscountType === 'FIXED_AMOUNT' ? 'Discount Amount' : 'Discount Percentage'}
-            </label>
+            <label htmlFor="offerDiscountValue">Discount Value</label>
             <input
               type="number"
               id="offerDiscountValue"
-              value={offerDetails.offerDiscountValue}
-              onChange={handleInputChange}
+              value={offerDetails.offerDiscountValue || ''}
+              onChange={(e) => dispatch(setOfferDetails({ offerDiscountValue: e.target.value }))}
               className={formErrors.offerDiscountValue ? 'input-error' : ''}
             />
             {formErrors.offerDiscountValue && <span className="error">{formErrors.offerDiscountValue}</span>}
           </div>
 
           <div className="form-group">
-            <label htmlFor="offerQuantity">Quantity</label>
-            <input
-              type="number"
-              id="offerQuantity"
-              value={offerDetails.offerQuantity}
+            <label htmlFor="offerType">Offer Type</label>
+            <select
+              id="offerType"
+              value={newItem.offerType || ''}
+              onChange={(e) => setNewItem({ ...newItem, offerType: e.target.value })}
+            >
+              <option value="">Select Offer Type</option>
+              <option value="ITEM_OFFER">ITEM_OFFER</option>
+              <option value="SKU_OFFER">SKU_OFFER</option>
+              <option value="ON_BILL_AMOUNT">ON_BILL_AMOUNT</option>
+              <option value="DISCOUNT_COUPONS">DISCOUNT_COUPONS</option>
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="offerOn">Offer On</label>
+            <select
+              id="offerOn"
+              value={newItem.offerOn}
               onChange={handleInputChange}
-              className={formErrors.offerQuantity ? 'input-error' : ''}
+            >
+              <option value="ITEM">Item</option>
+              <option value="SKU">SKU</option>
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="itemId">Item ID</label>
+            <input
+              type="text"
+              id="itemId"
+              value={newItem.itemId}
+              onChange={handleInputChange}
             />
-            {formErrors.offerQuantity && <span className="error">{formErrors.offerQuantity}</span>}
+            {invalidItemError && <span className="error">{invalidItemError}</span>}
+          </div>
+
+          {newItem.offerOn === 'ITEM' && availableSkus.length > 0 && (
+            <div className="form-group">
+              <label>SKU IDs</label>
+              <div className="checkbox-group">
+                {availableSkus.map((sku) => (
+                  <div key={sku}>
+                    <input
+                      type="checkbox"
+                      value={sku}
+                      onChange={handleSkuSelection}
+                      checked={newItem.skuId.includes(sku.toString())}
+                    />
+                    <label>{sku}</label>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {itemValidationError && <span className="error">{itemValidationError}</span>}
+          <IoAddCircleSharp onClick={validateAndAddItem}/>
+          <div className="offer-items-list">
+            {offerDetails.offerItems && offerDetails.offerItems.map((item, index) => (
+              <div key={index} className="offer-item">
+                <span>{item.offerOn} - {item.itemId} - SKUs: {item.skuId.join(', ')}</span>
+                <MdCancel onClick={() => removeOfferItem(index)}/>
+              </div>
+            ))}
           </div>
 
           <div className="form-group">
@@ -258,8 +279,8 @@ const CreateOffer = () => {
             <input
               type="date"
               id="offerStartDate"
-              value={offerDetails.offerStartDate}
-              onChange={handleInputChange}
+              value={offerDetails.offerStartDate || ''}
+              onChange={(e) => dispatch(setOfferDetails({ offerStartDate: e.target.value }))}
               className={formErrors.offerStartDate ? 'input-error' : ''}
             />
             {formErrors.offerStartDate && <span className="error">{formErrors.offerStartDate}</span>}
@@ -270,24 +291,16 @@ const CreateOffer = () => {
             <input
               type="date"
               id="offerEndDate"
-              value={offerDetails.offerEndDate}
-              onChange={handleInputChange}
+              value={offerDetails.offerEndDate || ''}
+              onChange={(e) => dispatch(setOfferDetails({ offerEndDate: e.target.value }))}
               className={formErrors.offerEndDate ? 'input-error' : ''}
             />
             {formErrors.offerEndDate && <span className="error">{formErrors.offerEndDate}</span>}
           </div>
-
-          <div className="button-group">
-            <button type="submit" className="submit-button">Create Offer</button>
-            {/* <button type="button" onClick={() => dispatch(resetForm())} className="reset-button">Reset</button> */}
-          </div>
-
-          {error && (
-            <span className="error">
-              {typeof error === 'string' ? error : JSON.stringify(error)}
-            </span>
-          )}
-
+          <button type="submit" disabled={loading} className="submit-button">
+            {loading ? 'Creating Offer...' : 'Create Offer'}
+          </button>
+          {error && <span className="error">{error}</span>}
         </form>
       </div>
     </div>

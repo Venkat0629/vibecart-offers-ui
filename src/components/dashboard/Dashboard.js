@@ -12,35 +12,48 @@ function Dashboard() {
   const [expiredOffers, setExpiredOffers] = useState(0);
 
   useEffect(() => {
-    fetch('http://localhost:5501/vibe-cart/offers')
+    fetch('http://localhost:5501/api/v1/vibe-cart/offers')
       .then(response => response.json())
       .then(data => {
-        const monthlyData = data.reduce((acc, offer) => {
+        const currentDate = new Date();
+        const threeMonthsAgo = new Date();
+        threeMonthsAgo.setMonth(currentDate.getMonth() - 3);
+
+        const filteredData = data.filter(offer => {
+          const offerDate = new Date(offer.offerStartDate);
+          return offerDate >= threeMonthsAgo;
+        });
+
+        const monthlyData = filteredData.reduce((acc, offer) => {
           const month = new Date(offer.offerStartDate).toLocaleString('default', { month: 'short' });
 
           if (!acc[month]) {
             acc[month] = { name: month, ProductOffers: 0, SeasonalPromotion: 0, PriceDiscounts: 0 };
           }
 
-          switch (offer.offerType.offerType) {
-            case 'ITEMS_OFFER':
-              acc[month].ProductOffers += 1;
-              break;
-            case 'LIMITED_TIME_OFFER':
-              acc[month].SeasonalPromotion += 1;
-              break;
-            case 'ON_BILL_AMOUNT':
-            case 'DISCOUNT_COUPONS':
-              acc[month].PriceDiscounts += 1;
-              break;
-            default:
-              break;
-          }
+          offer.offerItems.forEach(item => {
+            switch (item.offerType) {
+              case 'ITEM_OFFER':
+                acc[month].ProductOffers += 1;
+                break;
+              case 'SKU_OFFER':
+                acc[month].SeasonalPromotion += 1;
+                break;
+              case 'ON_BILL_AMOUNT':
+              case 'DISCOUNT_COUPONS':
+                acc[month].PriceDiscounts += 1;
+                break;
+              default:
+                break;
+            }
+          });
 
           return acc;
         }, {});
 
-        const barChartData = Object.values(monthlyData);
+        // Convert to array and filter out unwanted months (e.g., June and August)
+        const barChartData = Object.values(monthlyData).filter(monthData => !['Jun', 'Aug'].includes(monthData.name));
+
         const pieChartData = [
           { name: 'Product Offers', value: barChartData.reduce((sum, month) => sum + month.ProductOffers, 0) },
           { name: 'Seasonal Promotion', value: barChartData.reduce((sum, month) => sum + month.SeasonalPromotion, 0) },
@@ -49,11 +62,11 @@ function Dashboard() {
 
         setBarData(barChartData);
         setPieData(pieChartData);
-        setTotalOffers(data.length);
+        setTotalOffers(filteredData.length);
 
-        const active = data.filter(offer => offer.offerStatus === "ACTIVE").length;
+        const active = filteredData.filter(offer => offer.offerStatus === "ACTIVE").length;
         setActiveOffers(active);
-        setExpiredOffers(data.length - active);
+        setExpiredOffers(filteredData.length - active);
       })
       .catch(error => console.error('Error fetching data:', error));
   }, []);
@@ -81,7 +94,7 @@ function Dashboard() {
             <BarChart data={barData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
-              <YAxis allowDecimals={false} />  {/* This line prevents decimals from appearing on the Y-axis */}
+              <YAxis allowDecimals={false} />
               <Tooltip />
               <Legend />
               <Bar dataKey="ProductOffers" fill="#0292fa" />
@@ -89,7 +102,6 @@ function Dashboard() {
               <Bar dataKey="PriceDiscounts" fill="#06eeee" />
             </BarChart>
           </ResponsiveContainer>
-
           <h3>Last 3 Months Used Offers</h3>
         </div>
 

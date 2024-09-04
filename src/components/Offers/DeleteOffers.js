@@ -16,7 +16,7 @@ const DeleteOffers = () => {
     const fetchOffers = async () => {
       const token = localStorage.getItem('token');
       try {
-        const response = await axios.get("http://localhost:5501/vibe-cart/offers", {
+        const response = await axios.get("http://localhost:5501/api/v1/vibe-cart/offers", {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
@@ -108,13 +108,13 @@ const DeleteOffers = () => {
 
         </div>
         <div className="table-container">
-          <table className="offers-table">
+          <table className="offers-delete-table">
             <thead>
               <tr>
               <th>Select</th>
               <th>Offer ID</th>
               <th>Offer Name</th>
-              <th>Offer Type</th>
+              {/* <th>Offer Type</th> */}
               <th>Discount Type</th>
               <th>Discount Value</th>
               <th>Offer Quantity</th>
@@ -137,7 +137,7 @@ const DeleteOffers = () => {
                     </td>
                     <td>{offer.offerId}</td>
                     <td>{offer.offerName}</td>
-                    <td>{offer.offerType.offerType}</td>
+                    {/* <td>{offer.offerItems.offerType}</td> */}
                     <td>{offer.offerDiscountType}</td>
                     <td>{offer.offerDiscountType === 'FIXED_AMOUNT'
                       ? `$${offer.offerDiscountValue}`

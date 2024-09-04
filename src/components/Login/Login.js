@@ -46,7 +46,7 @@ const Login = () => {
     setErrors({ username: '', password: '', auth: '' });
     if (validateForm()) {
       try {
-        const response = await axios.post('http://localhost:5501/vibe-cart/offers/login', {
+        const response = await axios.post('http://localhost:5501/api/v1/vibe-cart/offers/login', {
           username: formData.username,
           password: formData.password,
         });

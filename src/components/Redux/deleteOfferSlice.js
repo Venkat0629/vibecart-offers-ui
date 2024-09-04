@@ -7,7 +7,7 @@ export const deleteOffer = createAsyncThunk(
   async (offerId, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:5501/vibe-cart/offers/${offerId}`, {
+      await axios.delete(`http://localhost:5501/api/v1/vibe-cart/offers/${offerId}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -28,7 +28,7 @@ export const deleteOffers = createAsyncThunk(
       const token = localStorage.getItem('token');
       await Promise.all(
         offerIds.map((id) =>
-          axios.delete(`http://localhost:5501/vibe-cart/offers/${id}`, {
+          axios.delete(`http://localhost:5501/api/v1/vibe-cart/offers/${id}`, {
             headers: {
               'Authorization': `Bearer ${token}`,
               'Content-Type': 'application/json',

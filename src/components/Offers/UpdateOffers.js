@@ -138,13 +138,13 @@ const UpdateOffers = () => {
         </div>
       </div>
       <div className="table-container">
-        <table className="offers-table">
+        <table className="offers-update-table">
           <thead>
             <tr>
               <th>Select</th>
               <th>Offer ID</th>
               <th>Offer Name</th>
-              <th>Offer Type</th>
+              {/* <th>Offer Type</th> */}
               <th>Discount Type</th>
               <th>Discount Value</th>
               <th>Offer Quantity</th>
@@ -171,7 +171,7 @@ const UpdateOffers = () => {
                       ? renderEditableCell('offerName', offer.offerName)
                       : offer.offerName}
                   </td>
-                  <td>
+                  {/* <td>
                     {editingOfferId === offer.offerId ? (
                       <select
                         name="offerType"
@@ -191,9 +191,9 @@ const UpdateOffers = () => {
                         <option value="DISCOUNT_COUPONS">DISCOUNT_COUPONS</option>
                       </select>
                     ) : (
-                      offer.offerType.offerType
+                      offer.offerItems.offerType
                     )}
-                  </td>
+                  </td> */}
                   <td>
                     {editingOfferId === offer.offerId ? (
                       <select

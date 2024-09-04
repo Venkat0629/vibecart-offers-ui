@@ -35,7 +35,7 @@ const Header = ({ onLogout, isLoggedIn, isLoginPage }) => {
 
             <div
                 className="header-subtitle"
-                style={{ marginRight: isLoginPage ? '11%' : '8%' }}
+                // style={{ marginRight: isLoginPage ? '11%' : '8%' }}
             >
                 Offer Management System
             </div>
