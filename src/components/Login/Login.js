@@ -55,8 +55,8 @@ const Login = () => {
         const { username } = formData;
         localStorage.setItem('token', token); 
         localStorage.setItem('username', username); 
-        dispatch(login()); // Dispatch login action
-        navigate('/dashboard'); // Redirect to dashboard
+        dispatch(login()); 
+        navigate('/dashboard');
       } catch (error) {
         setErrors((prevErrors) => ({
           ...prevErrors,

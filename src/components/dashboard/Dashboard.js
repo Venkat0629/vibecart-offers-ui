@@ -13,49 +13,60 @@ function Dashboard() {
   const [activeOffers, setActiveOffers] = useState(0);
   const [expiredOffers, setExpiredOffers] = useState(0);
 
-  useEffect(() => {
+   useEffect(() => {
     fetch('http://localhost:5501/api/v1/vibe-cart/offers')
       .then(response => response.json())
       .then(data => {
         const currentDate = new Date();
         const threeMonthsAgo = new Date();
-        threeMonthsAgo.setMonth(currentDate.getMonth() - 3);
+       threeMonthsAgo.setMonth(currentDate.getMonth() - 2);
+       console.log('Current Date:', currentDate.toDateString());
+       console.log('Three Months Ago:', threeMonthsAgo.toDateString());      
+         // Create an array of all months in the last 3 months
+        const monthNames = [];
+        for (let m = threeMonthsAgo.getMonth(); m <= currentDate.getMonth(); m++) {
+          const date = new Date(currentDate.getFullYear(), m, 1);
+          monthNames.push(date.toLocaleString('default', { month: 'short' }));
+        }
+
+        // Log the months being processed
+        console.log('Months in the last 3 months:', monthNames);
 
         const filteredData = data.filter(offer => {
           const offerDate = new Date(offer.offerStartDate);
-          return offerDate >= threeMonthsAgo;
+          return offerDate >= threeMonthsAgo && offerDate <= currentDate;
         });
 
-        const monthlyData = filteredData.reduce((acc, offer) => {
-          const month = new Date(offer.offerStartDate).toLocaleString('default', { month: 'short' });
+        setTotalOffers(data.length);
 
-          if (!acc[month]) {
-            acc[month] = { name: month, ProductOffers: 0, SeasonalPromotion: 0, PriceDiscounts: 0 };
-          }
-
-          offer.offerItems.forEach(item => {
-            switch (item.offerType) {
-              case 'ITEM_OFFER':
-                acc[month].ProductOffers += 1;
-                break;
-              case 'SKU_OFFER':
-                acc[month].SeasonalPromotion += 1;
-                break;
-              case 'ON_BILL_AMOUNT':
-              case 'DISCOUNT_COUPONS':
-                acc[month].PriceDiscounts += 1;
-                break;
-              default:
-                break;
-            }
-          });
-
+        const monthlyData = monthNames.reduce((acc, month) => {
+          acc[month] = { name: month, ProductOffers: 0, SeasonalPromotion: 0, PriceDiscounts: 0 };
           return acc;
         }, {});
 
-        // Convert to array and filter out unwanted months (e.g., June and August)
-        const barChartData = Object.values(monthlyData).filter(monthData => !['Jun', 'Aug'].includes(monthData.name));
+        data.forEach(offer => {
+          const month = new Date(offer.offerStartDate).toLocaleString('default', { month: 'short' });
+          if (monthlyData[month]) {
+            offer.offerItems.forEach(item => {
+              switch (item.offerType) {
+                case 'ITEM_OFFER':
+                  monthlyData[month].ProductOffers += 1;
+                  break;
+                case 'SKU_OFFER':
+                  monthlyData[month].SeasonalPromotion += 1;
+                  break;
+                case 'ON_BILL_AMOUNT':
+                case 'DISCOUNT_COUPONS':
+                  monthlyData[month].PriceDiscounts += 1;
+                  break;
+                default:
+                  break;
+              }
+            });
+          }
+        });
 
+        const barChartData = Object.values(monthlyData);
         const pieChartData = [
           { name: 'Product Offers', value: barChartData.reduce((sum, month) => sum + month.ProductOffers, 0) },
           { name: 'Seasonal Promotion', value: barChartData.reduce((sum, month) => sum + month.SeasonalPromotion, 0) },
@@ -64,7 +75,6 @@ function Dashboard() {
 
         setBarData(barChartData);
         setPieData(pieChartData);
-        setTotalOffers(filteredData.length);
 
         const active = filteredData.filter(offer => offer.offerStatus === "ACTIVE").length;
         setActiveOffers(active);
@@ -72,6 +82,7 @@ function Dashboard() {
       })
       .catch(error => console.error('Error fetching data:', error));
   }, []);
+  
 
   return (
     <div className="container mt-4 style={{ fontSize: '14px' }}">

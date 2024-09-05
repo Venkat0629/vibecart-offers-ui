@@ -1,0 +1,1 @@
+export const VIBECART_URI = "http://localhost:5501/api/v1/vibe-cart/offers"

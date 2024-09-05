@@ -229,9 +229,7 @@ const UpdateOffers = () => {
                       : offer.offerQuantity}
                   </td>
                   <td>
-                    {editingOfferId === offer.offerId
-                      ? renderEditableCell('offerStartDate', offer.offerStartDate, 'date')
-                      : offer.offerStartDate}
+                    {offer.offerStartDate}
                   </td>
                   <td>
                     {editingOfferId === offer.offerId
