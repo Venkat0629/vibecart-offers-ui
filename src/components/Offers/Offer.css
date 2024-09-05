@@ -369,3 +369,58 @@ h4 {
 .remove-item-btn:hover {
   color: darkred;
 }
+.input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-field {
+  width: 100%;
+  padding-right: 40px; /* Adjust for icon */
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.input-icon {
+  position: absolute;
+  right: 10px;
+  cursor: pointer;
+  color: #007bff;
+}
+
+.icon-disabled {
+  color: #ccc;
+  cursor: not-allowed;
+}
+
+.input-error {
+  border: 1px solid red;
+}
+
+.input-items-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px; /* Adjust as needed */
+  margin-top: 10px;
+}
+
+.input-item {
+  display: flex;
+  align-items: center;
+  background: #f1f1f1;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 5px;
+}
+
+.remove-item-icon {
+  cursor: pointer;
+  margin-left: 5px;
+}
+
+.error {
+  color: red;
+  margin-top: 5px;
+}
