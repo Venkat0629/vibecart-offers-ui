@@ -9,49 +9,65 @@ import './Offer.css'; // Import your custom CSS file
 
 const CreateOffer = () => {
   const dispatch = useDispatch();
-  const { offerDetails = { offerItems: [] }, loading, error, success } = useSelector((state) => state.offers);
+  const { offerDetails , loading, error, success } = useSelector((state) => state.offers);
   const [formErrors, setFormErrors] = useState({});
-  const [newItem, setNewItem] = useState({
-  offerType: 'SKU_OFFER',
-  itemIds: [],  // Change from single itemId to an array
-  skuIds: [],   // Change from single skuId to an array
-  couponCode: '',
-  enteringSku: '',
-  billAmount: ''
-});
-
+  const [newItem, setNewItem] = useState([]);
+  const [newItemIds, setNewItemIds] = useState([]); // Changed to store multiple item IDs
+  const [newskuIds, setNewSkuIds] = useState([]); // Changed to store multiple item IDs
   const [availableSkus, setAvailableSkus] = useState([]);
   const [skuValidationError, setSkuValidationError] = useState('');
   const [itemValidationError, setItemValidationError] = useState('');
   const [invalidItemError, setInvalidItemError] = useState('');
-
-  // Fetch SKUs based on itemId
+  const [itemlevelSku,setItemLevelsku]=useState([]);
+  const [formData, setFormData] = useState({
+    offerType: "",
+    skuId: '',
+    itemId: '',
+    billAmount: 0.0,
+    couponCode: ""
+  });
   const fetchAvailableSkus = async (itemId) => {
     try {
       const response = await axios.get(`http://localhost:8080/vibecart/ecom/items/item/${itemId}/skuIDs`);
       if (Array.isArray(response.data.skuIDs)) {
         setAvailableSkus(response.data.skuIDs.map(sku => ({ value: sku, label: sku })));
-        setInvalidItemError(''); // Clear any previous invalid item error
-      } else {
+        setInvalidItemError(''); 
         setAvailableSkus([]);
-        setInvalidItemError('Invalid item ID.'); // Set invalid item error
+        setInvalidItemError('Invalid item ID.'); 
       }
     } catch (error) {
       console.error('Error fetching SKUs:', error);
       setAvailableSkus([]);
-      setInvalidItemError('Error fetching SKUs.'); // Handle fetch error
+      setInvalidItemError('Error fetching SKUs.'); 
     }
   };
 
-  // Validate SKU
   const validateSku = async (sku) => {
     if (!sku) {
       setSkuValidationError('SKU cannot be empty.');
       return;
     }
+    
     try {
-      const response = await axios.get(`http://localhost:8080/vibecart/ecom/items/sku/${sku}`);
-      if (response.data.valid) {
+      const response = await axios.get(`http://localhost:8080/vibecart/ecom/products/product/sku-id/${sku}`);
+      
+      // Assuming response.data contains { skuID, itemID, ... }
+      const { skuID, itemID } = response.data;
+      
+      if (skuID && itemID) {
+        // Update state with new offer item
+        setNewItem(prevOfferItems => [
+          ...prevOfferItems,
+          {
+            offerType: formData.offerType,
+            offerOn: "SKU",
+            skuId: skuID,
+            itemId: itemID,
+            billAmount: 0.0,
+            couponCode: ""
+          }
+        ]);
+       console.log(newItem) 
         setSkuValidationError('');
       } else {
         setSkuValidationError('Invalid SKU.');
@@ -60,46 +76,43 @@ const CreateOffer = () => {
       setSkuValidationError('Error validating SKU.');
     }
   };
+  
 
-  // Handle changes to the input fields
   const handleInputChange = (e) => {
     const { id, value } = e.target;
-    setNewItem(prevState => ({ ...prevState, [id]: value }));
+    console.log(e.target.value);
+    setFormData(prevState => ({ ...prevState, [id]: value }));
 
-    // Validate SKU input
-    if (id === 'enteringSku') {
+    if (id === 'skuId') {
       validateSku(value);
     }
-  };
-
-  // Handle changes to the SKU selection
-  const handleSkuSelection = (selectedOptions) => {
-    const selectedSkuIds = selectedOptions ? selectedOptions.map(option => option.value) : [];
-    setNewItem(prevState => ({ ...prevState, skuId: selectedSkuIds }));
-  };
-
-  // Add a new item to the offer
-  const validateAndAddItem = () => {
-    if (newItem.offerType === 'ITEM_OFFER' && (!newItem.itemId || newItem.skuId.length === 0)) {
-      setItemValidationError('Item ID and at least one SKU ID are required.');
-      return;
+    if (id === 'couponCode' && formData.offerType === 'DISCOUNT_COUPONS') {
+      const myData = {
+        offerType: formData.offerType,
+        offerOn: 'NA',
+        skuId: null,
+        itemId: null,
+        billAmount: 0.0, 
+        couponCode: value, 
+      };
+      setNewItem(myData);
+    }  else if (id === 'billAmount') {
+      const myData = {
+        offerType: formData.offerType,
+        offerOn: 'NA',
+        skuId: null,
+        itemId: null,
+        billAmount: value, 
+        couponCode: null, 
+      };
+      setNewItem(myData);
     }
-    if (newItem.offerType === 'SKU_OFFER' && newItem.skuId.length === 0) {
-      setItemValidationError('At least one SKU ID is required.');
-      return;
-    }
-
-    setItemValidationError('');
-    dispatch(setOfferDetails({
-      offerItems: [...(offerDetails.offerItems || []), newItem]
-    }));
-
-    // Reset newItem state
-    setNewItem({ offerType: 'SKU_OFFER', itemId: '', skuId: [], couponCode: '', enteringSku: '' });
-    setAvailableSkus([]);
   };
 
-  // Remove an item from the offer
+
+
+
+
   const removeOfferItem = (index) => {
     const updatedItems = (offerDetails.offerItems || []).filter((_, idx) => idx !== index);
     dispatch(setOfferDetails({ offerItems: updatedItems }));
@@ -109,9 +122,19 @@ const CreateOffer = () => {
       const response = await fetch(`http://localhost:8080/vibecart/ecom/items/item/${itemId}/skuIDs`);
       const data = await response.json();
       if (response.ok && data.skuIDs) {
-        return true; // Valid itemId
+        const myItems = data.skuIDs.map(sku => ({
+          offerType: formData.offerType,
+          offerOn: 'ITEM',
+          skuId: sku,
+          itemId: parseInt(itemId),
+          billAmount: 0.0,
+          couponCode: null
+        }));  
+        console.log(myItems);
+        setNewItem(prevItems => [...prevItems, ...myItems])     
+        return true; 
       } else {
-        return false; // Invalid itemId
+        return false; 
       }
     } catch (error) {
       console.error('Error validating item ID:', error);
@@ -120,31 +143,52 @@ const CreateOffer = () => {
   };
   const handleItemIdChange = async (e) => {
     const itemId = e.target.value.trim();
-    setNewItem(prevState => ({
+    setFormData(prevState => ({
       ...prevState,
-      itemId: itemId // Update itemId directly
+      itemId: itemId 
     }));
 
     if (itemId) {
-      // Start asynchronous validation
       const isValid = await validateItemId(itemId);
       if (isValid) {
-        setItemValidationError(''); // Clear any previous error
-        fetchAvailableSkus(itemId); // Fetch SKUs if itemId is valid
+        setItemValidationError(''); 
+        fetchAvailableSkus(itemId); 
       } else {
         setItemValidationError(`Invalid item ID: ${itemId}`);
-        setAvailableSkus([]); // Clear SKUs if itemId is invalid
+        setAvailableSkus([]);
       }
     } else {
       setItemValidationError('Item ID cannot be empty.');
-      setAvailableSkus([]); // Clear SKUs if itemId is empty
+      setAvailableSkus([]); 
+    }
+  };
+  const addItemId = () => {
+    if (formData.itemId) {
+      setNewItemIds(prevState => [...prevState, formData.itemId]);
+      setFormData(prevState => ({ ...prevState, itemId: '' }));
+      setItemValidationError('');
+    } else {
+      setItemValidationError('Item ID cannot be empty.');
     }
   };
 
+  const removeItemId = (itemIdToRemove) => {
+    setNewItemIds(prevState => prevState.filter(id => id !== itemIdToRemove));
+  };
+  const addSku = ()=>{
+    if(formData.skuId){
+      setNewSkuIds(prevState => [...prevState, formData.skuId]);
+      setFormData(prevState => ({ ...prevState, skuId: '' }));
 
-
-
-  // Validate the entire form before submission
+    }else{
+      console.log(error)
+    }
+   
+  }
+  const removeSkuId = (skuIdToRemove) => {
+    setNewSkuIds(prevState => prevState.filter(id => id !== skuIdToRemove));
+  };
+  
   const validateForm = () => {
     const errors = {};
 
@@ -167,22 +211,22 @@ const CreateOffer = () => {
     return Object.keys(errors).length === 0;
   };
 
-  // Handle form submission
   const handleFormSubmit = (e) => {
     e.preventDefault();
+   console.log({...offerDetails,offerItems:[newItem]})
+   
+   console.log(newItem)
     if (validateForm()) {
       dispatch(createOffer(offerDetails));
     }
   };
 
-  // Fetch SKUs when itemId changes
   useEffect(() => {
     if (newItem.itemId) {
       fetchAvailableSkus(newItem.itemId);
     }
   }, [newItem.itemId]);
 
-  // Handle success response
   useEffect(() => {
     if (success) {
       alert('Offer created successfully');
@@ -216,8 +260,8 @@ const CreateOffer = () => {
                 <input
                   type="number"
                   id="offerQuantity"
-                  value={offerDetails.offerQuantity || ''}
-                  onChange={(e) => dispatch(setOfferDetails({ offerQuantity: e.target.value }))}
+                  value={offerDetails.offerQuantity}
+                  onChange={(e) => dispatch(setOfferDetails({ offerQuantity:parseInt(e.target.value)}))}
                   className={formErrors.offerQuantity ? 'input-error' : ''}
                 />
                 {formErrors.offerQuantity && <span className="error">{formErrors.offerQuantity}</span>}
@@ -251,7 +295,7 @@ const CreateOffer = () => {
                     type="number"
                     id="offerDiscountValue"
                     value={offerDetails.offerDiscountValue || ''}
-                    onChange={(e) => dispatch(setOfferDetails({ offerDiscountValue: e.target.value }))}
+                    onChange={(e) => dispatch(setOfferDetails({ offerDiscountValue: parseInt(e.target.value )}))}
                     className={formErrors.offerDiscountValue ? 'input-error' : ''}
                   />
                   {formErrors.offerDiscountValue && <span className="error">{formErrors.offerDiscountValue}</span>}
@@ -297,8 +341,9 @@ const CreateOffer = () => {
                 <select
                   id="offerType"
                   value={newItem.offerType}
-                  onChange={(e) => setNewItem(prevState => ({ ...prevState, offerType: e.target.value }))}
-                >
+                  onChange={(e) => setFormData(prevState => ({ ...prevState, offerType: e.target.value }))}
+                >                  
+                 <option value="">Select OfferType</option>
                   <option value="SKU_OFFER">SKU OFFER</option>
                   <option value="ITEM_OFFER">ITEM OFFER</option>
                   <option value="ON_BILL_AMOUNT">ON_BILL_AMOUNT</option>
@@ -307,87 +352,92 @@ const CreateOffer = () => {
               </div>
             </div>
 
-            {newItem.offerType === 'SKU_OFFER' && (
+            {formData.offerType === 'SKU_OFFER' && (
               <div className="form-column">
                 <div className="form-group">
-                  <label htmlFor="enteringSku">Enter SKUs</label>
+                  <label htmlFor="skuId">Enter SKUs</label>
                   <input
-                    type="text"
-                    id="enteringSku"
-                    value={newItem.enteringSku || ''}
+                    type="number"
+                    id="skuId"
+                    value={formData.skuId}
                     onChange={handleInputChange}
                   />
+                    <button type="button" onClick={addSku} disabled={!formData.skuId}>Add Skus</button>
+            {newskuIds.length > 0 && (
+            <div className="item-ids-container">
+              {newskuIds.map((skuId, index) => (
+                <div key={index} className="item-id">
+                  <span>{skuId}</span>
+                  <MdCancel onClick={() => removeSkuId(skuId)} className="remove-item-icon" />
+                </div>
+              ))}
+            </div>
+          )}
                   {skuValidationError && <span className="error">{skuValidationError}</span>}
                 </div>
               </div>
             )}
 
-            {newItem.offerType === 'ITEM_OFFER' && (
+            {formData.offerType === 'ITEM_OFFER' && (
               <>
                 <div className="form-column">
                   <div className="form-group">
                     <label htmlFor="itemId">Enter Item ID</label>
                     <input
-                      type="text"
+                      type="number"
                       id="itemId"
-                      value={newItem.itemId || ''}
+                      value={formData.itemId}
                       onChange={handleItemIdChange}
                       className={itemValidationError ? 'input-error' : ''}
                     />
-
+            <button type="button" onClick={addItemId} disabled={!formData.itemId}>Add Item ID</button>
+            {newItemIds.length > 0 && (
+            <div className="item-ids-container">
+              {newItemIds.map((itemId, index) => (
+                <div key={index} className="item-id">
+                  <span>{itemId}</span>
+                  <MdCancel onClick={() => removeItemId(itemId)} className="remove-item-icon" />
+                </div>
+              ))}
+            </div>
+          )}
                     {itemValidationError && <span className="error">{itemValidationError}</span>}
                   </div>
+                
                 </div>
 
-                {/* {newItem.itemId && (
-        <div className="form-column">
-          <div className="form-group">
-            <label htmlFor="availableSkus">Available SKUs</label>
-            <Select
-              isMulti
-              options={availableSkus}
-              onChange={handleSkuSelection}
-              value={availableSkus.filter(sku => newItem.skuId.includes(sku.value))}
-            />
-          </div>
-        </div>
-      )} */}
+            
               </>
             )}
-            {newItem.offerType === 'DISCOUNT_COUPONS' && (
+            {formData.offerType === 'DISCOUNT_COUPONS' && (
               <div className="form-column">
                 <div className="form-group">
                   <label htmlFor="couponCode">Enter Coupon Code</label>
                   <input
-                    type="text"
+                    type="number"
                     id="couponCode"
-                    value={newItem.couponCode || ''}
+                    value={formData.couponCode || ''}
                     onChange={handleInputChange}
                   />
-                  {/* {skuValidationError && <span className="error">{skuValidationError}</span>} */}
                 </div>
               </div>
             )}
-            {newItem.offerType === 'ON_BILL_AMOUNT' && (
+            {formData.offerType === 'ON_BILL_AMOUNT' && (
               <div className="form-column">
                 <div className="form-group">
                   <label htmlFor="billAmount">Enter Bill Amount</label>
                   <input
-                    type="text"
+                    type="number"
                     id="billAmount"
-                    value={newItem.billAmount || ''}
+                    value={formData.billAmount || ''}
                     onChange={handleInputChange}
                   />
-                  {/* {skuValidationError && <span className="error">{skuValidationError}</span>} */}
                 </div>
               </div>
             )}
           </div>
 
 
-          {/* <button type="button" onClick={validateAndAddItem} className="add-item-btn">
-            <IoAddCircleSharp /> Add Item
-          </button> */}
           <div className="form-group">
             <label htmlFor="offerDescription">Offer Description</label>
             <textarea

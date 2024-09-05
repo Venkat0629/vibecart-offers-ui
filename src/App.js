@@ -29,7 +29,7 @@ const App = () => {
       <Router>
         <Header onLogout={handleLogout} isLoggedIn={isLoggedIn} />
         <div className='content-container'>
-          {isLoggedIn ? (
+          {/* {isLoggedIn ? ( */}
             <>
               <Sidebar className='sidebar' />
               <div className='main-content'>
@@ -43,12 +43,12 @@ const App = () => {
                 </Routes>
               </div>
             </>
-          ) : (
+          {/* ) : (
             <Routes>
               <Route path="/login" element={<Login onLogin={handleLogin} />} />
               <Route path="*" element={<Navigate to="/login" />} />
             </Routes>
-          )}
+          )} */}
         </div>
         <Footer />
       </Router>

@@ -5,13 +5,13 @@ import axios from 'axios';
 export const createOffer = createAsyncThunk(
   'offers/createOffer',
   async (offerDetails, { rejectWithValue }) => {
-    const token = localStorage.getItem('token');
+    // const token = localStorage.getItem('token');
     try {
-      const response = await axios.post("http://localhost:5501/vibe-cart/offers", offerDetails, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+      const response = await axios.post("http://localhost:5501/api/v1/vibe-cart/offers", offerDetails, {
+        // headers: {
+        //   'Authorization': `Bearer ${token}`,
+        //   'Content-Type': 'application/json'
+        // }
       });
       return response.data;
     } catch (error) {
@@ -26,15 +26,10 @@ const createOfferSlice = createSlice({
     offerDetails: {
       offerName: '',
       offerDescription: '',
-      offerQuantity: '',
+      offerQuantity: 0,
       offerDiscountType: '',
-      offerDiscountValue: '',
-      offerType: {
-        offerType: '',
-        offerOn:'',
-        entityIds: [],
-        couponCode: ''
-      },
+      offerDiscountValue: 0,
+      offerItems:[],
       offerStartDate: '',
       offerEndDate: '',
     },
@@ -47,15 +42,10 @@ const createOfferSlice = createSlice({
       state.offerDetails = {
         offerName: '',
         offerDescription: '',
-        offerQuantity: '',
+        offerQuantity: 0,
         offerDiscountType: '',
-        offerDiscountValue: '',
-        offerType: {
-          offerType: '',
-          offerOn:'',
-          entityIds: [],
-          couponCode: ''
-        },
+        offerDiscountValue: 0,
+        offerItems: [],
         offerStartDate: '',
         offerEndDate: '',
       };

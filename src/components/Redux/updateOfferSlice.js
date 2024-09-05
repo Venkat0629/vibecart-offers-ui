@@ -4,10 +4,10 @@ import axios from 'axios';
 // Thunk to fetch offers
 export const fetchOffers = createAsyncThunk('updateOffers/fetchOffers', async (token) => {
   const response = await axios.get('http://localhost:5501/api/v1/vibe-cart/offers', {
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
+    // headers: {
+    //   'Authorization': `Bearer ${token}`,
+    //   'Content-Type': 'application/json',
+    // },
   });
   let mydata = response.data;
   const sortedOffers = mydata.sort((a, b) => new Date(b.offerCreatedAt) - new Date(a.offerCreatedAt));;

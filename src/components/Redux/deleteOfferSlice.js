@@ -8,10 +8,10 @@ export const deleteOffer = createAsyncThunk(
     try {
       const token = localStorage.getItem('token');
       await axios.delete(`http://localhost:5501/api/v1/vibe-cart/offers/${offerId}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+        // headers: {
+        //   'Authorization': `Bearer ${token}`,
+        //   'Content-Type': 'application/json',
+        // },
       });
       return offerId;
     } catch (error) {
