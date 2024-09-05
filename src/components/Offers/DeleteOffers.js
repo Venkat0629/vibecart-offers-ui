@@ -4,7 +4,8 @@ import axios from 'axios';
 import { setOffers, deleteOffer, deleteOffers, selectAllOffers, toggleOfferSelection } from '../Redux/deleteOfferSlice'; // Adjust the path as necessary
 import './Offer.css';
 import { RiDeleteBin6Line } from "react-icons/ri";
-
+import Badge from 'react-bootstrap/Badge';
+import { FaSearch } from "react-icons/fa";
 const DeleteOffers = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectAll, setSelectAll] = useState(false);
@@ -76,23 +77,29 @@ const DeleteOffers = () => {
       offer.offerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       offer.offerId.toString().includes(searchTerm.toLowerCase())
   ) : [];
-
+  const offerTypeColors = {
+    "SKU_OFFER": "bg-primary",    // Blue background
+    "ITEM_OFFER": "bg-success",   // Green background
+    "ON_BILL_AMOUNT": "bg-secondary", // Yellow background
+    "DISCOUNT_COUPONS": "bg-dark", // Red background
+  };
   return (
     <div className='deletepage-container'>
       <div className="deletepage-content">
         <div className="search-and-select">
           <div className="search-container">
-            <input
-              type="text"
-              className="search-input"
-              placeholder="Search Offers"
-              value={searchTerm}
-              onChange={handleSearchChange}
-            />
-            <button className="search-button" onClick={handleSearch}>
-              Search
-            </button>
+            <div className="search-input-wrapper">
+              <input
+                type="text"
+                className="search-input"
+                placeholder="Search Offers"
+                value={searchTerm}
+                onChange={handleSearchChange}
+              />
+              <FaSearch className="search-icon" size={24} color='lightgrey' onClick={handleSearch} />
+            </div>
           </div>
+
           <div className="select-all-container">
             <input
               type="checkbox"
@@ -111,17 +118,17 @@ const DeleteOffers = () => {
           <table className="offers-delete-table">
             <thead>
               <tr>
-              <th>Select</th>
-              <th>Offer ID</th>
-              <th>Offer Name</th>
-              {/* <th>Offer Type</th> */}
-              <th>Discount Type</th>
-              <th>Discount Value</th>
-              <th>Offer Quantity</th>
-              <th>Start Date</th>
-              <th>Expiry Date</th>
-              <th>Offer Status</th>
-              <th>Actions</th>
+                <th>Select</th>
+                <th>Offer ID</th>
+                <th>Offer Name</th>
+                <th>Offer Type</th>
+                <th>Discount Type</th>
+                <th>Discount Value</th>
+                <th>Offer Quantity</th>
+                <th>Start Date</th>
+                <th>Expiry Date</th>
+                <th>Offer Status</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -137,7 +144,15 @@ const DeleteOffers = () => {
                     </td>
                     <td>{offer.offerId}</td>
                     <td>{offer.offerName}</td>
-                    {/* <td>{offer.offerItems.offerType}</td> */}
+                    <td>
+                      <Badge
+                        pill
+                        className={offerTypeColors[offer.offerItems[0].offerType] || "bg-secondary"}
+                        style={{ width: "max-content" }}
+                      >
+                        {offer.offerItems[0].offerType}
+                        <span className="badge bg-light text-dark">{offer.offerItems.length}</span>
+                      </Badge></td>
                     <td>{offer.offerDiscountType}</td>
                     <td>{offer.offerDiscountType === 'FIXED_AMOUNT'
                       ? `$${offer.offerDiscountValue}`

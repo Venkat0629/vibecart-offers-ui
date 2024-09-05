@@ -9,7 +9,6 @@
   background-color: var(--card-background-color);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
-  padding: 20px;
   max-width: 600px;
   margin: auto;
 }
@@ -118,23 +117,26 @@ input#entityIds {
 }
 
 .search-container {
+  position: relative;
+}
+
+.search-input-wrapper {
   display: flex;
   align-items: center;
 }
 
 .search-input {
-  padding: var(--form-control-padding);
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius);
-  margin-right: 10px;
+  width: 100%;
+  padding: 10px 40px; /* Add extra padding to accommodate the icon */
+  box-sizing: border-box;
 }
 
-.search-button {
-  padding: var(--form-control-padding);
-  border: none;
-  border-radius: var(--border-radius);
-  cursor: pointer;
+.search-icon {
+  position: absolute;
+  right: 10px; /* Adjust as needed */
+  pointer-events: none; /* Ensures click events go through to the input field */
 }
+
 
 .select-all-container {
   display: flex;
@@ -156,7 +158,7 @@ input#entityIds {
 
 .delete-selected-button,
 .update-all-button {
-  /* padding: var(--form-control-padding); */
+  padding: var(--form-control-padding);
   border: none;
   border-radius: var(--border-radius);
   cursor: pointer;
@@ -164,12 +166,15 @@ input#entityIds {
 }
 
 .delete-selected-button {
+  background-color: #8c0e12;
+  color: #fff;
   /* Add background color if needed */
 }
 
 .update-all-button {
   margin-left: 10px;
   padding: 10px;
+  background-color: #fff;
 }
 
 .table-container {
@@ -180,6 +185,7 @@ input#entityIds {
   width: 100%;
   border-collapse: collapse;
   font-size: 14px;
+  background-color: #fff;
 }
 
 .offers-update-table th,
@@ -190,23 +196,28 @@ input#entityIds {
 }
 
 .offers-update-table th {
-  background-color: var(--background-color);
+  background-color: #f5f5f5;
 }
 .offers-delete-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 14px;
-}
+  background-color: #fff;
 
+}
+.offers-delete-table th{
+  background-color: #f5f5f5;
+
+}
 .offers-delete-table th,
 .offers-delete-table td {
-  padding: 15px;
+  padding: 12px;
   text-align: center;
   border: 1px solid var(--border-color);
 }
 
 .offers-delete-table th {
-  background-color: var(--background-color);
+  background-color: #f5f5f5;
 }
 .no-offers {
   text-align: center;
@@ -285,9 +296,9 @@ input#inputValue {
 
 .offer-card {
   background-color: #fff;
-  border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  /* border-radius: 8px; */
+  /* padding: 20px; */
+  /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); */
 }
 
 h4 {

@@ -195,7 +195,7 @@ const CreateOffer = () => {
     if (!offerDetails.offerName) errors.offerName = 'Offer Name is required.';
     if (!offerDetails.offerDiscountType) errors.offerDiscountType = 'Discount Type is required.';
     if (offerDetails.offerDiscountType && offerDetails.offerDiscountValue <= 0) {
-      errors.offerDiscountValue = `${offerDetails.offerDiscountType === 'FIXED_AMOUNT' ? 'Discount Amount' : 'Discount Percentage'} is required and must be greater than 0.`;
+      errors.offerDiscountValue = `${offerDetails.offerDiscountType === 'PRICE' ? 'Discount Amount' : 'Discount Percentage'} is required and must be greater than 0.`;
     }
     if (offerDetails.offerQuantity <= 0) errors.offerQuantity = 'Quantity is required and must be greater than 0.';
     if (!offerDetails.offerStartDate) errors.offerStartDate = 'Start Date is required.';
@@ -217,7 +217,7 @@ const CreateOffer = () => {
 
     console.log(newItem)
     if (validateForm()) {
-      dispatch(createOffer({ ...offerDetails, offerItems:newItem }));
+      dispatch(createOffer({ ...offerDetails, offerItems: newItem }));
     }
   };
 
@@ -235,251 +235,258 @@ const CreateOffer = () => {
   }, [success, dispatch]);
 
   return (
-    <div className="offer-container">
-      <div className="offer-card">
-        <h4>Add New Offer</h4>
-        <form onSubmit={handleFormSubmit}>
-          <div className="form-row">
-            <div className="form-column">
-              <div className="form-group">
-                <label htmlFor="offerName">Offer Name</label>
-                <input
-                  type="text"
-                  id="offerName"
-                  value={offerDetails.offerName || ''}
-                  onChange={(e) => dispatch(setOfferDetails({ offerName: e.target.value }))}
-                  className={formErrors.offerName ? 'input-error' : ''}
-                />
-                {formErrors.offerName && <span className="error">{formErrors.offerName}</span>}
-              </div>
-            </div>
-
-            <div className="form-column">
-              <div className="form-group">
-                <label htmlFor="offerQuantity">Offer Quantity</label>
-                <input
-                  type="number"
-                  id="offerQuantity"
-                  value={offerDetails.offerQuantity}
-                  onChange={(e) => dispatch(setOfferDetails({ offerQuantity: parseInt(e.target.value) }))}
-                  className={formErrors.offerQuantity ? 'input-error' : ''}
-                />
-                {formErrors.offerQuantity && <span className="error">{formErrors.offerQuantity}</span>}
-              </div>
-            </div>
-          </div>
-
-          <div className="form-row">
-            <div className="form-column">
-              <div className="form-group">
-                <label htmlFor="offerDiscountType">Discount Type</label>
-                <select
-                  id="offerDiscountType"
-                  value={offerDetails.offerDiscountType || ''}
-                  onChange={(e) => dispatch(setOfferDetails({ offerDiscountType: e.target.value }))}
-                  className={formErrors.offerDiscountType ? 'input-error' : ''}
-                >
-                  <option value="">Select Discount Type</option>
-                  <option value="PERCENTAGE">Percentage</option>
-                  <option value="FIXED_AMOUNT">Fixed Amount</option>
-                </select>
-                {formErrors.offerDiscountType && <span className="error">{formErrors.offerDiscountType}</span>}
-              </div>
-            </div>
-
-            {offerDetails.offerDiscountType && (
-              <div className="form-column">
+    <div className="container offer-container">
+      <div className="card offer-card">
+        <div className="card-header bg-light-grey">
+          <h4 className="card-title">Add New Offer</h4>
+        </div>
+        <div className="card-body">
+          <form onSubmit={handleFormSubmit}>
+            <div className="row mb-3">
+              <div className="col-md-6">
                 <div className="form-group">
-                  <label htmlFor="offerDiscountValue">Discount Value</label>
+                  <label htmlFor="offerName">Offer Name</label>
                   <input
-                    type="number"
-                    id="offerDiscountValue"
-                    value={offerDetails.offerDiscountValue || ''}
-                    onChange={(e) => dispatch(setOfferDetails({ offerDiscountValue: parseInt(e.target.value) }))}
-                    className={formErrors.offerDiscountValue ? 'input-error' : ''}
+                    type="text"
+                    id="offerName"
+                    value={offerDetails.offerName || ''}
+                    onChange={(e) => dispatch(setOfferDetails({ offerName: e.target.value }))}
+                    className={`form-control ${formErrors.offerName ? 'is-invalid' : ''}`}
                   />
-                  {formErrors.offerDiscountValue && <span className="error">{formErrors.offerDiscountValue}</span>}
+                  {formErrors.offerName && <div className="invalid-feedback">{formErrors.offerName}</div>}
                 </div>
               </div>
-            )}
-          </div>
 
-          <div className="form-row">
-            <div className="form-column">
-              <div className="form-group">
-                <label htmlFor="offerStartDate">Start Date</label>
-                <input
-                  type="date"
-                  id="offerStartDate"
-                  value={offerDetails.offerStartDate || ''}
-                  onChange={(e) => dispatch(setOfferDetails({ offerStartDate: e.target.value }))}
-                  className={formErrors.offerStartDate ? 'input-error' : ''}
-                />
-                {formErrors.offerStartDate && <span className="error">{formErrors.offerStartDate}</span>}
-              </div>
-            </div>
-
-            <div className="form-column">
-              <div className="form-group">
-                <label htmlFor="offerEndDate">End Date</label>
-                <input
-                  type="date"
-                  id="offerEndDate"
-                  value={offerDetails.offerEndDate || ''}
-                  onChange={(e) => dispatch(setOfferDetails({ offerEndDate: e.target.value }))}
-                  className={formErrors.offerEndDate ? 'input-error' : ''}
-                />
-                {formErrors.offerEndDate && <span className="error">{formErrors.offerEndDate}</span>}
-              </div>
-            </div>
-          </div>
-
-          <div className="form-row">
-            <div className="form-column">
-              <div className="form-group">
-                <label htmlFor="offerType">Offer Type</label>
-                <select
-                  id="offerType"
-                  value={newItem.offerType}
-                  onChange={(e) => setFormData(prevState => ({ ...prevState, offerType: e.target.value }))}
-                >
-                  <option value="">Select OfferType</option>
-                  <option value="SKU_OFFER">SKU OFFER</option>
-                  <option value="ITEM_OFFER">ITEM OFFER</option>
-                  <option value="ON_BILL_AMOUNT">ON_BILL_AMOUNT</option>
-                  <option value="DISCOUNT_COUPONS">DISCOUNT_COUPONS</option>
-                </select>
-              </div>
-            </div>
-            {formData.offerType === 'SKU_OFFER' && (
-              <div className="form-column">
+              <div className="col-md-6">
                 <div className="form-group">
-                  <label htmlFor="skuId">Enter SKUs</label>
-                  <div className="input-container">
+                  <label htmlFor="offerQuantity">Offer Quantity</label>
+                  <input
+                    type="number"
+                    id="offerQuantity"
+                    value={offerDetails.offerQuantity}
+                    onChange={(e) => dispatch(setOfferDetails({ offerQuantity: parseInt(e.target.value) }))}
+                    className={`form-control ${formErrors.offerQuantity ? 'is-invalid' : ''}`}
+                  />
+                  {formErrors.offerQuantity && <div className="invalid-feedback">{formErrors.offerQuantity}</div>}
+                </div>
+              </div>
+            </div>
+
+            <div className="row mb-3">
+              <div className={offerDetails.offerDiscountType ? 'col-md-6' : 'col-md-12'}>
+                <div className="form-group">
+                  <label htmlFor="offerDiscountType">Discount Type</label>
+                  <select
+                    id="offerDiscountType"
+                    value={offerDetails.offerDiscountType || ''}
+                    onChange={(e) => dispatch(setOfferDetails({ offerDiscountType: e.target.value }))}
+                    className={`form-control ${formErrors.offerDiscountType ? 'is-invalid' : ''}`}
+                  >
+                    <option value="">Select Discount Type</option>
+                    <option value="PERCENTAGE">Percentage</option>
+                    <option value="PRICE">Price</option>
+                  </select>
+                  {formErrors.offerDiscountType && (
+                    <div className="invalid-feedback">{formErrors.offerDiscountType}</div>
+                  )}
+                </div>
+              </div>
+
+              {offerDetails.offerDiscountType && (
+                <div className="col-md-6">
+                  <div className="form-group">
+                    <label htmlFor="offerDiscountValue">Discount Value</label>
                     <input
                       type="number"
-                      id="skuId"
-                      value={formData.skuId}
-                      onChange={handleInputChange}
-                      className={skuValidationError ? 'input-error' : ''}
-                      placeholder="Enter SKU"
+                      id="offerDiscountValue"
+                      value={offerDetails.offerDiscountValue || ''}
+                      onChange={(e) => dispatch(setOfferDetails({ offerDiscountValue: parseInt(e.target.value) }))}
+                      className={`form-control ${formErrors.offerDiscountValue ? 'is-invalid' : ''}`}
                     />
-                     <IoAddCircleSharp
-                      onClick={addSku}
-                      className={`input-icon ${!formData.skuId ? 'icon-disabled' : ''}`}
-                    />
-                    
+                    {formErrors.offerDiscountValue && (
+                      <div className="invalid-feedback">{formErrors.offerDiscountValue}</div>
+                    )}
                   </div>
-                  {newskuIds.length > 0 && (
-                    <div className="input-items-container">
-                      {newskuIds.map((skuId, index) => (
-                        <div key={index} className="item-id">
-                          <span>{skuId}</span>
-                          <MdCancel onClick={() => removeSkuId(skuId)} className="remove-item-icon" />
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  {skuValidationError && <span className="error">{skuValidationError}</span>}
+                </div>
+              )}
+            </div>
+
+
+            <div className="row mb-3">
+              <div className="col-md-6">
+                <div className="form-group">
+                  <label htmlFor="offerStartDate">Start Date</label>
+                  <input
+                    type="date"
+                    id="offerStartDate"
+                    value={offerDetails.offerStartDate || ''}
+                    onChange={(e) => dispatch(setOfferDetails({ offerStartDate: e.target.value }))}
+                    className={`form-control ${formErrors.offerStartDate ? 'is-invalid' : ''}`}
+                  />
+                  {formErrors.offerStartDate && <div className="invalid-feedback">{formErrors.offerStartDate}</div>}
                 </div>
               </div>
-            )}
 
-
-            {formData.offerType === 'ITEM_OFFER' && (
-              <div className="form-column">
+              <div className="col-md-6">
                 <div className="form-group">
-                  <label htmlFor="itemId">Enter Item ID</label>
-                  <div className="input-container">
+                  <label htmlFor="offerEndDate">End Date</label>
+                  <input
+                    type="date"
+                    id="offerEndDate"
+                    value={offerDetails.offerEndDate || ''}
+                    onChange={(e) => dispatch(setOfferDetails({ offerEndDate: e.target.value }))}
+                    className={`form-control ${formErrors.offerEndDate ? 'is-invalid' : ''}`}
+                  />
+                  {formErrors.offerEndDate && <div className="invalid-feedback">{formErrors.offerEndDate}</div>}
+                </div>
+              </div>
+            </div>
+
+            <div className="row mb-3">
+              <div className={`col-md-${formData.offerType ? '6' : '12'}`}>
+                <div className="form-group">
+                  <label htmlFor="offerType">Offer Type</label>
+                  <select
+                    id="offerType"
+                    value={newItem.offerType}
+                    onChange={(e) => setFormData((prevState) => ({ ...prevState, offerType: e.target.value }))}
+                    className="form-control"
+                  >
+                    <option value="">Select Offer Type</option>
+                    <option value="SKU_OFFER">SKU OFFER</option>
+                    <option value="ITEM_OFFER">ITEM OFFER</option>
+                    <option value="ON_BILL_AMOUNT">ON BILL AMOUNT</option>
+                    <option value="DISCOUNT_COUPONS">DISCOUNT COUPONS</option>
+                  </select>
+                </div>
+              </div>
+
+              {formData.offerType === 'SKU_OFFER' && (
+                <div className="col-md-6">
+                  <div className="form-group">
+                    <label htmlFor="skuId">Enter SKUs</label>
+                    <div className="input-group">
+                      <input
+                        type="number"
+                        id="skuId"
+                        value={formData.skuId}
+                        onChange={handleInputChange}
+                        className={`form-control ${skuValidationError ? 'is-invalid' : ''}`}
+                        placeholder="Enter SKU"
+                      />
+                      <span className="input-group-text">
+                        <IoAddCircleSharp
+                          onClick={addSku}
+                          className={`input-icon ${!formData.skuId ? 'icon-disabled' : ''}`}
+                        />
+                      </span>
+                    </div>
+                    {newskuIds.length > 0 && (
+                      <div className="input-items-container mt-2">
+                        {newskuIds.map((skuId, index) => (
+                          <div key={index} className="item-id">
+                            <span>{skuId}</span>
+                            <MdCancel onClick={() => removeSkuId(skuId)} className="remove-item-icon" />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {skuValidationError && <div className="invalid-feedback">{skuValidationError}</div>}
+                  </div>
+                </div>
+              )}
+
+              {formData.offerType === 'ITEM_OFFER' && (
+                <div className="col-md-6">
+                  <div className="form-group">
+                    <label htmlFor="itemId">Enter Item ID</label>
+                    <div className="input-group">
+                      <input
+                        type="text"
+                        id="itemId"
+                        value={formData.itemId}
+                        onChange={handleItemIdChange}
+                        className={`form-control ${itemValidationError ? 'is-invalid' : ''}`}
+                      />
+                      <span className="input-group-text">
+                        <IoAddCircleSharp
+                          onClick={addItemId}
+                          className={`input-icon ${!formData.itemId ? 'icon-disabled' : ''}`}
+                        />
+                      </span>
+                    </div>
+                    {newItemIds.length > 0 && (
+                      <div className="input-items-container mt-2">
+                        {newItemIds.map((itemId, index) => (
+                          <div key={index} className="input-item">
+                            <span>{itemId}</span>
+                            <MdCancel onClick={() => removeItemId(itemId)} className="remove-item-icon" />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {itemValidationError && <div className="invalid-feedback">{itemValidationError}</div>}
+                  </div>
+                </div>
+              )}
+
+              {formData.offerType === 'DISCOUNT_COUPONS' && (
+                <div className="col-md-6">
+                  <div className="form-group">
+                    <label htmlFor="couponCode">Enter Coupon Code</label>
                     <input
-                      type="text"
-                      id="itemId"
-                      value={formData.itemId}
-                      onChange={handleItemIdChange}
-                      className={`input-field ${itemValidationError ? 'input-error' : ''}`}
-                    />
-                    <IoAddCircleSharp
-                      onClick={addItemId}
-                      className={`input-icon ${!formData.itemId ? 'icon-disabled' : ''}`}
+                      type="number"
+                      id="couponCode"
+                      value={formData.couponCode || ''}
+                      onChange={handleInputChange}
+                      className="form-control"
                     />
                   </div>
-                  {newItemIds.length > 0 && (
-                    <div className="input-items-container">
-                      {newItemIds.map((itemId, index) => (
-                        <div key={index} className="input-item">
-                          <span>{itemId}</span>
-                          <MdCancel onClick={() => removeItemId(itemId)} className="remove-item-icon" />
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  {itemValidationError && <span className="error">{itemValidationError}</span>}
                 </div>
-              </div>
-            )}
-            {formData.offerType === 'DISCOUNT_COUPONS' && (
-              <div className="form-column">
-                <div className="form-group">
-                  <label htmlFor="couponCode">Enter Coupon Code</label>
-                  <input
-                    type="number"
-                    id="couponCode"
-                    value={formData.couponCode || ''}
-                    onChange={handleInputChange}
-                  />
-                </div>
-              </div>
-            )}
-            {formData.offerType === 'ON_BILL_AMOUNT' && (
-              <div className="form-column">
-                <div className="form-group">
-                  <label htmlFor="billAmount">Enter Bill Amount</label>
-                  <input
-                    type="number"
-                    id="billAmount"
-                    value={formData.billAmount || ''}
-                    onChange={handleInputChange}
-                  />
-                </div>
-              </div>
-            )}
-          </div>
+              )}
 
+              {formData.offerType === 'ON_BILL_AMOUNT' && (
+                <div className="col-md-6">
+                  <div className="form-group">
+                    <label htmlFor="billAmount">Enter Bill Amount</label>
+                    <input
+                      type="number"
+                      id="billAmount"
+                      value={formData.billAmount || ''}
+                      onChange={handleInputChange}
+                      className="form-control"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
 
-          <div className="form-group">
-            <label htmlFor="offerDescription">Offer Description</label>
-            <textarea
-              id="offerDescription"
-              value={offerDetails.offerDescription || ''}
-              onChange={(e) => dispatch(setOfferDetails({ offerDescription: e.target.value }))}
-              rows="2"
-            />
-          </div>
-          <div className="offer-items-list">
-            {(offerDetails.offerItems || []).map((item, index) => (
-              <div key={index} className="offer-item">
-                <p>Offer Type: {item.offerType}</p>
-                {item.offerType === 'SKU_OFFER' && <p>SKU IDs: {item.skuId.join(', ')}</p>}
-                {item.offerType === 'ITEM_OFFER' && <p>Item IDs: {item.itemIds.join(', ')}</p>
-                }
-                <button type="button" onClick={() => removeOfferItem(index)} className="remove-item-btn">
-                  <MdCancel />
+            <div className="form-group">
+              <label htmlFor="offerDescription">Offer Description</label>
+              <textarea
+                id="offerDescription"
+                value={offerDetails.offerDescription || ''}
+                onChange={(e) => dispatch(setOfferDetails({ offerDescription: e.target.value }))}
+                rows="2"
+                className={`form-control ${formErrors.offerDescription ? 'is-invalid' : ''}`}
+              />
+              {formErrors.offerDescription && <div className="invalid-feedback">{formErrors.offerDescription}</div>}
+            </div>
+
+            <div className="row mt-4">
+              <div className="col-md">
+                <button type="submit" className="btn  w-100">
+                  Create Offer
                 </button>
               </div>
-            ))}
-          </div>
-
-          <div className="form-group">
-            <button type="submit" className="submit-btn" disabled={loading}>
-              {loading ? 'Creating Offer...' : 'Create Offer'}
-            </button>
-          </div>
-
-
-        </form>
+              
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );
+
 };
 
 export default CreateOffer;

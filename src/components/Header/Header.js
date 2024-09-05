@@ -41,7 +41,7 @@ const Header = ({ onLogout, isLoggedIn, isLoginPage }) => {
             </div>
 
             <div className="header-actions">
-                {isLoggedIn && (
+                {/* {isLoggedIn && ( */}
                     <div
                         className="user-info"
                         onMouseEnter={handleMouseEnter}
@@ -54,7 +54,7 @@ const Header = ({ onLogout, isLoggedIn, isLoginPage }) => {
                             <a href="#" className="dropdown-item" onClick={handleLogout}>Sign out</a>
                         </div>
                     </div>
-                )}
+                {/* )} */}
             </div>
         </header>
     );

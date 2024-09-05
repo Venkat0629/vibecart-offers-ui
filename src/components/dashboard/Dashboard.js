@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import './Dashboard.css';
 
-const COLORS = ['#0292fa', '#06eeee', '#010344'];
+// New color scheme
+const COLORS = ['#dd1e25', '#fbb3b5', '#c1121f', '#f08080'];
 
 function Dashboard() {
   const [barData, setBarData] = useState([]);
@@ -72,63 +74,96 @@ function Dashboard() {
   }, []);
 
   return (
-    <div className='dashboard'>
-      <div className='offers'>
-        <div>
-          <h1>{totalOffers}</h1>
-          <p className="offer-description">Total offers</p>
+    <div className="container mt-4 style={{ fontSize: '14px' }}">
+      <div className="row mb-4">
+        <div className="col-md-4">
+          <div className="card text-center">
+            <div className="card-header bg-light-grey bold">
+              Total offers
+            </div>
+            <div className="card-body">
+              <h1 className="card-title">{totalOffers}</h1>
+            </div>
+          </div>
         </div>
-        <div>
-          <h1>{activeOffers}</h1>
-          <p className="offer-description">Active offers</p>
+        <div className="col-md-4">
+          <div className="card text-center">
+            <div className="card-header bg-light-grey bold">
+              Active offers
+            </div>
+            <div className="card-body">
+              <h1 className="card-title">{activeOffers}</h1>
+            </div>
+          </div>
         </div>
-        <div>
-          <h1>{expiredOffers}</h1>
-          <p className="offer-description">Expired offers</p>
+        <div className="col-md-4">
+          <div className="card text-center">
+            <div className="card-header bg-light-grey bold">
+              Expired offers
+            </div>
+            <div className="card-body">
+              <h1 className="card-title">{expiredOffers}</h1>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div className="charts-container">
-        <div className="chart">
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={barData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis allowDecimals={false} />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="ProductOffers" fill="#0292fa" />
-              <Bar dataKey="SeasonalPromotion" fill="#010344" />
-              <Bar dataKey="PriceDiscounts" fill="#06eeee" />
-            </BarChart>
-          </ResponsiveContainer>
-          <h3>Last 3 Months Used Offers</h3>
-        </div>
 
-        <div className="chart">
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={pieData}
-                cx="50%"
-                cy="50%"
-                innerRadius={60}
-                outerRadius={90}
-                fill="#06eeee"
-                paddingAngle={5}
-                dataKey="value"
-                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-              >
-                {pieData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
-          <h3>Most Used Offer Types</h3>
-        </div>
+
+      <div className="row mb-4">
+  <div className="col-md-6 mb-4">
+    <div className="card">
+      <div className="card-header bg-light-grey text-center bold">
+        Last 3 Months Used Offers
       </div>
+      <div className="card-body p-3">
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart data={barData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" />
+            <YAxis allowDecimals={false} />
+            <Tooltip />
+            <Legend />
+            <Bar dataKey="ProductOffers" fill={COLORS[0]} />
+            <Bar dataKey="SeasonalPromotion" fill={COLORS[1]} />
+            <Bar dataKey="PriceDiscounts" fill={COLORS[2]} />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+  </div>
+
+  <div className="col-md-6 mb-4">
+    <div className="card">
+      <div className="card-header bg-light-grey text-center bold">
+        Most Used Offer Types
+      </div>
+      <div className="card-body p-3">
+        <ResponsiveContainer width="100%" height={300}>
+          <PieChart>
+            <Pie
+              data={pieData}
+              cx="50%"
+              cy="50%"
+              innerRadius={0} // Set innerRadius to 0 for a simple pie chart
+              outerRadius={90} // Adjust outerRadius as needed
+              fill={COLORS[3]}
+              paddingAngle={5}
+              dataKey="value"
+              label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+            >
+              {pieData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              ))}
+            </Pie>
+            <Tooltip />
+          </PieChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+  </div>
+</div>
+
     </div>
   );
 }

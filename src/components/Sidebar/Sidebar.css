@@ -62,7 +62,7 @@
   width: 200px;
   background-color: #F5F5F5;
   border-right: 1px solid var(--border-color);
-  padding: 20px;
+  /* padding: 20px; */
   display: flex;
   flex-direction: column;
 }
@@ -75,16 +75,16 @@
   text-decoration: none;
   color: var(--text-color);
   padding: 10px;
-  border-radius: var(--border-radius);
+  /* border-radius: var(--border-radius); */
   display: block;
 }
 
 .sidebar-item a:hover {
-  background-color:#dedede;
+  background-color:#efefef;
   color: var(--text-color);
 }
 
 .active-link {
-  background-color: #dedede;
+  background-color: #efefef;
   color:var(--text-color);
 }

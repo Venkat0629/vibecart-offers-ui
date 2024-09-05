@@ -14,13 +14,15 @@ import { MdOutlineCancel } from 'react-icons/md';
 import { IoMdCreate } from "react-icons/io";
 import { FaCircleCheck } from "react-icons/fa6";
 import { MdCancel } from "react-icons/md";
+import Badge from 'react-bootstrap/Badge';
+import { FaSearch } from "react-icons/fa";
 const UpdateOffers = () => {
   const dispatch = useDispatch();
   const { offers, status, error, jwtToken } = useSelector(state => state.updateOffers);
   const [searchTerm, setSearchTerm] = useState('');
   const [editingOfferId, setEditingOfferId] = useState(null);
   const [editableFields, setEditableFields] = useState({});
-
+  const [offerData, setOfferData] = useState(0)
   useEffect(() => {
     const token = localStorage.getItem('token');
     dispatch(setToken(token));
@@ -66,6 +68,8 @@ const UpdateOffers = () => {
   };
 
   const handleSearch = () => {
+    console.log(offerTypeCounts)
+    console.log(offers.offerItems[0])
     // Implement search logic
   };
 
@@ -90,6 +94,10 @@ const UpdateOffers = () => {
       step={type === 'number' ? 'any' : undefined} // Allow decimals for number inputs
     />
   );
+  const offerTypeCounts = offers.length
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
 
   const renderEditableSelect = (name, value, options) => (
     <select
@@ -106,22 +114,31 @@ const UpdateOffers = () => {
       ))}
     </select>
   );
-
+  // const typeCounts = offerItems.reduce((acc, item) => {
+  //   acc[item.offerType] = (acc[item.offerType] || 0) + 1;
+  //   return acc;
+  // }, {});
+  const offerTypeColors = {
+    "SKU_OFFER": "bg-primary",    // Blue background
+    "ITEM_OFFER": "bg-success",   // Green background
+    "ON_BILL_AMOUNT": "bg-secondary", // Yellow background
+    "DISCOUNT_COUPONS": "bg-dark", // Red background
+  };
   return (
     <div className="update-offers-container">
       <div className="actions-container">
-        <div className="search-container">
-          <input
-            type="text"
-            className="search-input"
-            placeholder="Search Offers"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-          <button className="search-button" onClick={handleSearch}>
-            Search
-          </button>
-        </div>
+      <div className="search-container">
+            <div className="search-input-wrapper">
+              <input
+                type="text"
+                className="search-input"
+                placeholder="Search Offers"
+                value={searchTerm}
+                onChange={handleSearchChange}
+              />
+              <FaSearch className="search-icon" size={24} color='lightgrey' onClick={handleSearch} />
+            </div>
+          </div>
         <div className="select-all-container">
           <input
             type="checkbox"
@@ -129,7 +146,7 @@ const UpdateOffers = () => {
             checked={offers.every(offer => offer.selected)}
             onChange={handleSelectAllChange}
           />
-          <label htmlFor="selectAll" className="select-all-label">
+          <label htmlFor="selectAll" className="select-all-label bg-light-grey">
             Select All
           </label>
           <button className="update-all-button" onClick={handleUpdateSelected}>
@@ -144,7 +161,7 @@ const UpdateOffers = () => {
               <th>Select</th>
               <th>Offer ID</th>
               <th>Offer Name</th>
-              {/* <th>Offer Type</th> */}
+              <th>Offer Type</th>
               <th>Discount Type</th>
               <th>Discount Value</th>
               <th>Offer Quantity</th>
@@ -171,29 +188,18 @@ const UpdateOffers = () => {
                       ? renderEditableCell('offerName', offer.offerName)
                       : offer.offerName}
                   </td>
-                  {/* <td>
-                    {editingOfferId === offer.offerId ? (
-                      <select
-                        name="offerType"
-                        value={editableFields.offerType?.offerType || ''}
-                        onChange={(e) =>
-                          setEditableFields((prevFields) => ({
-                            ...prevFields,
-                            offerType: { ...prevFields.offerType, offerType: e.target.value },
-                          }))
-                        }
-                        className="form-control"
-                      >
-                        <option value="">Select Offer Type</option>
-                        <option value="ITEMS_OFFER">ITEMS_OFFER</option>
-                        <option value="LIMITED_TIME_OFFER">LIMITED_TIME_OFFER</option>
-                        <option value="ON_BILL_AMOUNT">ON_BILL_AMOUNT</option>
-                        <option value="DISCOUNT_COUPONS">DISCOUNT_COUPONS</option>
-                      </select>
-                    ) : (
-                      offer.offerItems.offerType
-                    )}
-                  </td> */}
+                  <td>
+                    <Badge
+                      pill
+                      className={offerTypeColors[offer.offerItems[0].offerType] || "bg-secondary"}
+                      style={{ width: "max-content" }}
+                    >
+                      {offer.offerItems[0].offerType}
+                      <span className="badge bg-light text-dark">{offer.offerItems.length}</span>
+                    </Badge>
+
+                  </td>
+
                   <td>
                     {editingOfferId === offer.offerId ? (
                       <select
@@ -214,8 +220,8 @@ const UpdateOffers = () => {
                     {editingOfferId === offer.offerId
                       ? renderEditableCell('offerDiscountValue', offer.offerDiscountValue, 'number')
                       : offer.offerDiscountType === 'FIXED_AMOUNT'
-                      ? `$${offer.offerDiscountValue}`
-                      : `${offer.offerDiscountValue}%`}
+                        ? `$${offer.offerDiscountValue}`
+                        : `${offer.offerDiscountValue}%`}
                   </td>
                   <td>
                     {editingOfferId === offer.offerId

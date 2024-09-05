@@ -69,3 +69,14 @@
     font-size: 1.5rem; /* Adjust font size for very small screens */
   }
 }
+.dashboard {
+  padding: 20px;
+}
+
+.bg-light {
+  background-color: #f8f9fa !important;
+}
+
+.shadow {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
