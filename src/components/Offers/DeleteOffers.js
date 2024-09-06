@@ -145,14 +145,19 @@ const DeleteOffers = () => {
                     <td>{offer.offerId}</td>
                     <td>{offer.offerName}</td>
                     <td>
-                      <Badge
-                        pill
-                        className={offerTypeColors[offer.offerItems[0].offerType] || "bg-secondary"}
-                        style={{ width: "max-content" }}
-                      >
-                        {offer.offerItems[0].offerType}
-                        <span className="badge bg-light text-dark">{offer.offerItems.length}</span>
-                      </Badge></td>
+                      {offer.offerItems && offer.offerItems.length > 0 ? (
+                        <Badge
+                          pill
+                          className={offerTypeColors[offer.offerItems[0].offerType] || "bg-secondary"}
+                          style={{ width: "max-content" }}
+                        >
+                          {offer.offerItems[0].offerType}
+                          <span className="badge bg-light text-dark">{offer.offerItems.length}</span>
+                        </Badge>
+                      ) : (
+                        <span>No Items</span> // Handle cases where offerItems is null or empty
+                      )}
+                    </td>
                     <td>{offer.offerDiscountType}</td>
                     <td>{offer.offerDiscountType === 'FIXED_AMOUNT'
                       ? `$${offer.offerDiscountValue}`

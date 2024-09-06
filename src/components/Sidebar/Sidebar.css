@@ -87,4 +87,5 @@
 .active-link {
   background-color: #efefef;
   color:var(--text-color);
+  font-weight: bold;
 }

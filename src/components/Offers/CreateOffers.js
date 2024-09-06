@@ -217,7 +217,7 @@ const CreateOffer = () => {
 
     console.log(newItem)
     if (validateForm()) {
-      dispatch(createOffer({ ...offerDetails, offerItems: newItem }));
+      dispatch(createOffer({ ...offerDetails, offerItems: [newItem] }));
     }
   };
 
@@ -435,7 +435,7 @@ const CreateOffer = () => {
                   <div className="form-group">
                     <label htmlFor="couponCode">Enter Coupon Code</label>
                     <input
-                      type="number"
+                      type="text"
                       id="couponCode"
                       value={formData.couponCode || ''}
                       onChange={handleInputChange}
