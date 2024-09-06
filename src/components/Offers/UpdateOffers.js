@@ -22,7 +22,6 @@ const UpdateOffers = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [editingOfferId, setEditingOfferId] = useState(null);
   const [editableFields, setEditableFields] = useState({});
-  const [offerData, setOfferData] = useState(0)
   useEffect(() => {
     const token = localStorage.getItem('token');
     dispatch(setToken(token));

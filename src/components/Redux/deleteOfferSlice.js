@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
+import { VIBECART_URI } from '../Services/service';
 
 // Async thunk for deleting a single offer
 export const deleteOffer = createAsyncThunk(
@@ -7,7 +8,7 @@ export const deleteOffer = createAsyncThunk(
   async (offerId, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:5501/api/v1/vibe-cart/offers/${offerId}`, {
+      await axios.delete(`${VIBECART_URI}/${offerId}`, {
         // headers: {
         //   'Authorization': `Bearer ${token}`,
         //   'Content-Type': 'application/json',
@@ -28,7 +29,7 @@ export const deleteOffers = createAsyncThunk(
       const token = localStorage.getItem('token');
       await Promise.all(
         offerIds.map((id) =>
-          axios.delete(`http://localhost:5501/api/v1/vibe-cart/offers/${id}`, {
+          axios.delete(`${VIBECART_URI}/${id}`, {
             headers: {
               'Authorization': `Bearer ${token}`,
               'Content-Type': 'application/json',

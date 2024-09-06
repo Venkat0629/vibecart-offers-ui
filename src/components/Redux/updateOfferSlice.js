@@ -1,9 +1,10 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
+import { VIBECART_URI } from '../Services/service';
 
 // Thunk to fetch offers
 export const fetchOffers = createAsyncThunk('updateOffers/fetchOffers', async (token) => {
-  const response = await axios.get('http://localhost:5501/api/v1/vibe-cart/offers', {
+  const response = await axios.get(`${VIBECART_URI}`, {
     // headers: {
     //   'Authorization': `Bearer ${token}`,
     //   'Content-Type': 'application/json',
@@ -17,7 +18,7 @@ export const fetchOffers = createAsyncThunk('updateOffers/fetchOffers', async (t
 
 // Thunk to update an offer
 export const updateOffer = createAsyncThunk('updateOffers/updateOffer', async ({ id, data, token }) => {
-  const response = await axios.put(`http://localhost:5501/api/v1/vibe-cart/offers/${id}`, data, {
+  const response = await axios.put(`${VIBECART_URI}/${id}`, data, {
     headers: {
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json',
@@ -30,7 +31,7 @@ export const updateOffer = createAsyncThunk('updateOffers/updateOffer', async ({
 export const updateMultipleOffers = createAsyncThunk('updateOffers/updateMultipleOffers', async ({ ids, data, token }) => {
   await Promise.all(
     ids.map(id =>
-      axios.put(`http://localhost:5501/api/v1/vibe-cart/offers/${id}`, data, {
+      axios.put(`${VIBECART_URI}/${id}`, data, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',

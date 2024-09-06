@@ -6,6 +6,7 @@ import './Offer.css';
 import { RiDeleteBin6Line } from "react-icons/ri";
 import Badge from 'react-bootstrap/Badge';
 import { FaSearch } from "react-icons/fa";
+import { VIBECART_URI } from '../Services/service';
 const DeleteOffers = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectAll, setSelectAll] = useState(false);
@@ -17,7 +18,7 @@ const DeleteOffers = () => {
     const fetchOffers = async () => {
       const token = localStorage.getItem('token');
       try {
-        const response = await axios.get("http://localhost:5501/api/v1/vibe-cart/offers", {
+        const response = await axios.get(`${VIBECART_URI}`, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',

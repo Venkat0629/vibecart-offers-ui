@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
+import { VIBECART_URI } from '../Services/service';
 
 // Async thunk for creating an offer
 export const createOffer = createAsyncThunk(
@@ -7,7 +8,7 @@ export const createOffer = createAsyncThunk(
   async (offerDetails, { rejectWithValue }) => {
     try {
 
-      const response = await axios.post("http://localhost:5501/api/v1/vibe-cart/offers", offerDetails, {
+      const response = await axios.post(`${VIBECART_URI}`, offerDetails, {
       
       });
       return response.data;

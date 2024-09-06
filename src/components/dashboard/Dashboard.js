@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Dashboard.css';
+import { VIBECART_URI } from '../Services/service';
 
 // New color scheme
 const COLORS = ['#dd1e25', '#fbb3b5', '#c1121f', '#f08080'];
@@ -14,7 +15,7 @@ function Dashboard() {
   const [expiredOffers, setExpiredOffers] = useState(0);
 
   useEffect(() => {
-    fetch('http://localhost:5501/api/v1/vibe-cart/offers')
+    fetch(`${VIBECART_URI}`)
       .then(response => response.json())
       .then(data => {
         const currentDate = new Date();

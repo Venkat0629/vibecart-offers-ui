@@ -5,6 +5,7 @@ import { MdCancel } from "react-icons/md";
 import { IoAddCircleSharp } from "react-icons/io5";
 import axios from 'axios';
 import './Offer.css'; // Import your custom CSS file
+import { ECOM_URI } from '../Services/service';
 
 const CreateOffer = () => {
   const dispatch = useDispatch();
@@ -26,7 +27,7 @@ const CreateOffer = () => {
   });
   const fetchAvailableSkus = async (itemId) => {
     try {
-      const response = await axios.get(`http://localhost:8080/vibecart/ecom/items/item/${itemId}/skuIDs`);
+      const response = await axios.get(`${ECOM_URI}/items/item/${itemId}/skuIDs`);
       if (Array.isArray(response.data.skuIDs)) {
         setAvailableSkus(response.data.skuIDs.map(sku => ({ value: sku, label: sku })));
         setInvalidItemError('');
@@ -42,7 +43,7 @@ const CreateOffer = () => {
 
   const validateSku = async (sku) => {
     try {
-      const response = await axios.get(`http://localhost:8080/vibecart/ecom/products/product/sku-id/${sku}`);
+      const response = await axios.get(`${ECOM_URI}/products/product/sku-id/${sku}`);
   
       // Assuming response.data contains { skuID, itemID, ... }
       const { skuID, itemID } = response.data;
