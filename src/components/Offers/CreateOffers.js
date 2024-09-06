@@ -4,7 +4,6 @@ import { createOffer, resetForm, setOfferDetails } from '../Redux/offerSlice';
 import { MdCancel } from "react-icons/md";
 import { IoAddCircleSharp } from "react-icons/io5";
 import axios from 'axios';
-import Select from 'react-select';
 import './Offer.css'; // Import your custom CSS file
 
 const CreateOffer = () => {
@@ -16,7 +15,7 @@ const CreateOffer = () => {
   const [newskuIds, setNewSkuIds] = useState([]); // Changed to store multiple item IDs
   const [availableSkus, setAvailableSkus] = useState([]);
   const [skuValidationError, setSkuValidationError] = useState('');
-  const [itemValidationError, setItemValidationError] = useState('hi');
+  const [itemValidationError, setItemValidationError] = useState('');
   const [invalidItemError, setInvalidItemError] = useState('');
   const [formData, setFormData] = useState({
     offerType: "",
@@ -42,23 +41,18 @@ const CreateOffer = () => {
   };
 
   const validateSku = async (sku) => {
-    if (!sku) {
-      setSkuValidationError('SKU cannot be empty.');
-      return;
-    }
-
     try {
       const response = await axios.get(`http://localhost:8080/vibecart/ecom/products/product/sku-id/${sku}`);
-
+  
       // Assuming response.data contains { skuID, itemID, ... }
       const { skuID, itemID } = response.data;
-
+  
       if (skuID && itemID) {
         // Update state with new offer item
         setNewItem(prevOfferItems => [
           ...prevOfferItems,
           {
-            offerType: formData.offerType,
+            offerType: formData.offerType,   // Assuming offerType is coming from formData
             offerOn: "SKU",
             skuId: skuID,
             itemId: itemID,
@@ -66,58 +60,91 @@ const CreateOffer = () => {
             couponCode: ""
           }
         ]);
-        console.log(newItem)
+  
+        // Set validation error to empty string
         setSkuValidationError('');
+        return true;
+  
       } else {
+        // If skuID or itemID is missing, show error
         setSkuValidationError('Invalid SKU.');
-        console.log('invalid sku')
+        console.error('Invalid SKU');
+        return false;
+
       }
     } catch (error) {
+      // In case of an error, set validation error
       setSkuValidationError('Invalid SKU.');
-      console.error('Invalid SKU');
+      console.error('Invalid SKU', error);
+      return false;
 
     }
   };
+  
 
 
   const handleInputChange = (e) => {
     const { id, value } = e.target;
     console.log(e.target.value);
     setFormData(prevState => ({ ...prevState, [id]: value }));
+    dispatch(setOfferDetails({ [id]: value }));
 
+    setFormErrors(prevErrors => ({
+      ...prevErrors,
+      [id]: ''
+    }));
     if (id === 'skuId') {
       validateSku(value);
     }
+    
     if (id === 'couponCode' && formData.offerType === 'DISCOUNT_COUPONS') {
-      const myData = {
+      const myData = [{
         offerType: formData.offerType,
         offerOn: 'NA',
         skuId: null,
         itemId: null,
         billAmount: 0.0,
         couponCode: value,
-      };
+      }];
       setNewItem(myData);
     } else if (id === 'billAmount') {
-      const myData = {
+      const myData = [{
         offerType: formData.offerType,
         offerOn: 'NA',
         skuId: null,
         itemId: null,
         billAmount: value,
         couponCode: null,
-      };
+      }];
       setNewItem(myData);
     }
+
   };
-
-
-
-
-
-  const removeOfferItem = (index) => {
-    const updatedItems = (offerDetails.offerItems || []).filter((_, idx) => idx !== index);
-    dispatch(setOfferDetails({ offerItems: updatedItems }));
+  const addSku = async () => {
+    if (formData.skuId) {
+      try {
+        // Await the validation result
+        const isValid = await validateSku(formData.skuId);
+  
+        console.log('Validation result:', isValid);  // Log the result of the validation
+  
+        if (isValid) {
+          setNewSkuIds(prevState => [...prevState, formData.skuId]);
+          setFormData(prevState => ({ ...prevState, skuId: '' }));
+          setSkuValidationError('');
+        } else {
+          console.log('Invalid SKU, cannot add.');
+        }
+      } catch (error) {
+        console.error('Error while validating SKU:', error);
+      }
+    } else {
+      console.log('SKU is required.');
+    }
+  };
+  
+  const removeSkuId = (skuIdToRemove) => {
+    setNewSkuIds(prevState => prevState.filter(id => id !== skuIdToRemove));
   };
   const validateItemId = async (itemId) => {
     try {
@@ -133,6 +160,8 @@ const CreateOffer = () => {
           couponCode: ''
         }));
         setNewItem(prevItems => [...prevItems, ...myItems])
+        console.log(prevItems => [...prevItems, ...myItems])
+
         return true;
       } else {
         return false;
@@ -182,29 +211,11 @@ const CreateOffer = () => {
   const removeItemId = (itemIdToRemove) => {
     setNewItemIds(prevState => prevState.filter(id => id !== itemIdToRemove));
   };
-  const addSku = async () => {
-    if (formData.skuId) {
-      // Call validateSku before adding the SKU
-      const isValid = await validateSku(formData.skuId);
-
-      if (isValid) {
-        setNewSkuIds(prevState => [...prevState, formData.skuId]);
-        setFormData(prevState => ({ ...prevState, skuId: '' }));
-        setSkuValidationError('');
-      } else {
-        console.log('Invalid SKU, cannot add.');
-      }
-    } else {
-      console.log('SKU is required.');
-    }
-  };
-  const removeSkuId = (skuIdToRemove) => {
-    setNewSkuIds(prevState => prevState.filter(id => id !== skuIdToRemove));
-  };
+  
 
   const validateForm = () => {
     const errors = {};
-
+  
     if (!offerDetails.offerName) errors.offerName = 'Offer Name is required.';
     if (!offerDetails.offerDiscountType) errors.offerDiscountType = 'Discount Type is required.';
     if (offerDetails.offerDiscountType && offerDetails.offerDiscountValue <= 0) {
@@ -213,27 +224,32 @@ const CreateOffer = () => {
     if (offerDetails.offerQuantity <= 0) errors.offerQuantity = 'Quantity is required and must be greater than 0.';
     if (!offerDetails.offerStartDate) errors.offerStartDate = 'Start Date is required.';
     if (!offerDetails.offerEndDate) errors.offerEndDate = 'End Date is required.';
-
+  
     if (offerDetails.offerStartDate && offerDetails.offerEndDate) {
       if (new Date(offerDetails.offerStartDate) >= new Date(offerDetails.offerEndDate)) {
         errors.offerEndDate = 'End Date must be greater than Start Date.';
       }
     }
-    if (!offerDetails.offerDescription) errors.offerDescription = 'Offer Description required'
+    if (!offerDetails.offerDescription) errors.offerDescription = 'Offer Description required';
+    
+  
     setFormErrors(errors);
+
     return Object.keys(errors).length === 0;
+
   };
+  
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
-    console.log({ ...offerDetails, offerItems: [newItem] })
-
-    console.log(newItem)
+    console.log(createOffer({ ...offerDetails, offerItems: newItem }))
     if (validateForm()) {
-      dispatch(createOffer({ ...offerDetails, offerItems: [newItem] }));
+      dispatch(createOffer({ ...offerDetails, offerItems: newItem }));
+    } else {
+      console.log('Validation Failed. Errors:', formErrors);
     }
   };
-
+  
   useEffect(() => {
     if (newItem.itemId) {
       fetchAvailableSkus(newItem.itemId);
@@ -241,7 +257,7 @@ const CreateOffer = () => {
   }, [newItem.itemId]);
 
   useEffect(() => {
-    
+
     if (success) {
       alert('Offer created successfully');
       dispatch(resetForm());
@@ -264,7 +280,7 @@ const CreateOffer = () => {
                     type="text"
                     id="offerName"
                     value={offerDetails.offerName || ''}
-                    onChange={(e) => dispatch(setOfferDetails({ offerName: e.target.value }))}
+                    onChange={handleInputChange}
                     className={`form-control ${formErrors.offerName ? 'is-invalid' : ''}`}
                   />
                   {formErrors.offerName ? (<div className="invalid-feedback">{formErrors.offerName}</div>):''}
@@ -278,7 +294,7 @@ const CreateOffer = () => {
                     type="number"
                     id="offerQuantity"
                     value={offerDetails.offerQuantity}
-                    onChange={(e) => dispatch(setOfferDetails({ offerQuantity: parseInt(e.target.value) }))}
+                    onChange={handleInputChange}
                     className={`form-control ${formErrors.offerQuantity ? 'is-invalid' : ''}`}
                   />
                   {formErrors.offerQuantity && <div className="invalid-feedback">{formErrors.offerQuantity}</div>}
@@ -293,7 +309,7 @@ const CreateOffer = () => {
                   <select
                     id="offerDiscountType"
                     value={offerDetails.offerDiscountType || ''}
-                    onChange={(e) => dispatch(setOfferDetails({ offerDiscountType: e.target.value }))}
+                    onChange={handleInputChange}
                     className={`form-control ${formErrors.offerDiscountType ? 'is-invalid' : ''}`}
                   >
                     <option value="">Select Discount Type</option>
@@ -313,8 +329,8 @@ const CreateOffer = () => {
                     <input
                       type="number"
                       id="offerDiscountValue"
-                      value={offerDetails.offerDiscountValue || ''}
-                      onChange={(e) => dispatch(setOfferDetails({ offerDiscountValue: parseInt(e.target.value) }))}
+                      value={offerDetails.offerDiscountValue}
+                      onChange={handleInputChange}
                       className={`form-control ${formErrors.offerDiscountValue ? 'is-invalid' : ''}`}
                     />
                     {formErrors.offerDiscountValue && (
@@ -334,7 +350,7 @@ const CreateOffer = () => {
                     type="date"
                     id="offerStartDate"
                     value={offerDetails.offerStartDate || ''}
-                    onChange={(e) => dispatch(setOfferDetails({ offerStartDate: e.target.value }))}
+                    onChange={handleInputChange}
                     className={`form-control ${formErrors.offerStartDate ? 'is-invalid' : ''}`}
                   />
                   {formErrors.offerStartDate && <div className="invalid-feedback">{formErrors.offerStartDate}</div>}
@@ -348,7 +364,7 @@ const CreateOffer = () => {
                     type="date"
                     id="offerEndDate"
                     value={offerDetails.offerEndDate || ''}
-                    onChange={(e) => dispatch(setOfferDetails({ offerEndDate: e.target.value }))}
+                    onChange={handleInputChange}
                     className={`form-control ${formErrors.offerEndDate ? 'is-invalid' : ''}`}
                   />
                   {formErrors.offerEndDate && <div className="invalid-feedback">{formErrors.offerEndDate}</div>}
@@ -362,7 +378,7 @@ const CreateOffer = () => {
                 <select
                   id="offerType"
                   value={newItem.offerType}
-                  onChange={(e) => setFormData((prevState) => ({ ...prevState, offerType: e.target.value }))}
+                  onChange={handleInputChange}
                   className="form-control"
                 >
                   <option value="">Select Offer Type</option>
@@ -478,7 +494,7 @@ const CreateOffer = () => {
               <textarea
                 id="offerDescription"
                 value={offerDetails.offerDescription || ''}
-                onChange={(e) => dispatch(setOfferDetails({ offerDescription: e.target.value }))}
+                onChange={handleInputChange}
                 rows="2"
                 className={`form-control ${formErrors.offerDescription ? 'is-invalid' : ''}`}
               />

@@ -5,17 +5,17 @@ import axios from 'axios';
 export const createOffer = createAsyncThunk(
   'offers/createOffer',
   async (offerDetails, { rejectWithValue }) => {
-    // const token = localStorage.getItem('token');
     try {
+
       const response = await axios.post("http://localhost:5501/api/v1/vibe-cart/offers", offerDetails, {
-        // headers: {
-        //   'Authorization': `Bearer ${token}`,
-        //   'Content-Type': 'application/json'
-        // }
+      
       });
       return response.data;
     } catch (error) {
+      console.log("c")
+
       return rejectWithValue(error.response.data);
+
     }
   }
 );

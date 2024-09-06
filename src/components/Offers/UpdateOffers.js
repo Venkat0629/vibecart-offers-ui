@@ -252,6 +252,8 @@ const UpdateOffers = () => {
                     )}
                   </td>
                   <td>
+                  {offer.offerStatus !== 'SHELVED' && (
+                      <>
                     {editingOfferId === offer.offerId ? (
                       <div className="actions-buttons">
                         <FaCircleCheck onClick={handleUpdate} size={24} color='green' />
@@ -261,7 +263,7 @@ const UpdateOffers = () => {
                       <button className="edit-button" onClick={() => handleEdit(offer.offerId)}>
                         Edit
                       </button>
-                    )}
+                    )}</>)}
                   </td>
                 </tr>
               ))

@@ -71,12 +71,14 @@ const DeleteOffers = () => {
       console.error('Error deleting offer:', error);
     }
   };
-
-  const filteredOffers = Array.isArray(offers) ? offers.filter(
+  const filteredOffers = Array.isArray(offers) ? offers
+  .filter(
     (offer) =>
-      offer.offerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      offer.offerId.toString().includes(searchTerm.toLowerCase())
+      offer.offerStatus !== 'SHELVED' && // Exclude SHELVED offers
+      (offer.offerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      offer.offerId.toString().includes(searchTerm.toLowerCase()))
   ) : [];
+
   const offerTypeColors = {
     "SKU_OFFER": "bg-primary",    // Blue background
     "ITEM_OFFER": "bg-info",   // Green background
