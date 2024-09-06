@@ -120,25 +120,25 @@ const UpdateOffers = () => {
   // }, {});
   const offerTypeColors = {
     "SKU_OFFER": "bg-primary",    // Blue background
-    "ITEM_OFFER": "bg-success",   // Green background
+    "ITEM_OFFER": "bg-info",   // Green background
     "ON_BILL_AMOUNT": "bg-secondary", // Yellow background
     "DISCOUNT_COUPONS": "bg-dark", // Red background
   };
   return (
     <div className="update-offers-container">
       <div className="actions-container">
-      <div className="search-container">
-            <div className="search-input-wrapper">
-              <input
-                type="text"
-                className="search-input"
-                placeholder="Search Offers"
-                value={searchTerm}
-                onChange={handleSearchChange}
-              />
-              <FaSearch className="search-icon" size={24} color='lightgrey' onClick={handleSearch} />
-            </div>
+        <div className="search-container">
+          <div className="search-input-wrapper">
+            <input
+              type="text"
+              className="search-input"
+              placeholder="Search Offers"
+              value={searchTerm}
+              onChange={handleSearchChange}
+            />
+            <FaSearch className="search-icon" size={24} color='lightgrey' onClick={handleSearch} />
           </div>
+        </div>
         <div className="select-all-container">
           <input
             type="checkbox"
@@ -164,7 +164,8 @@ const UpdateOffers = () => {
               <th>Offer Type</th>
               <th>Discount Type</th>
               <th>Discount Value</th>
-              <th>Offer Quantity</th>
+              <th>Offer Usage Quantity</th>
+              <th>Offer Used Quantity</th>
               <th>Start Date</th>
               <th>Expiry Date</th>
               <th>Offer Status</th>
@@ -189,18 +190,18 @@ const UpdateOffers = () => {
                       : offer.offerName}
                   </td>
                   <td>
-                  {offer.offerItems && offer.offerItems.length > 0 ? (
-    <Badge
-      pill
-      className={offerTypeColors[offer.offerItems[0].offerType] || "bg-secondary"}
-      style={{ width: "max-content" }}
-    >
-      {offer.offerItems[0].offerType}
-      <span className="badge bg-light text-dark">{offer.offerItems.length}</span>
-    </Badge>
-  ) : (
-    <span>No Items</span> // Handle cases where offerItems is null or empty
-  )}
+                    {offer.offerItems && offer.offerItems.length > 0 ? (
+                      <Badge
+                        pill
+                        className={offerTypeColors[offer.offerItems[0].offerType] || "bg-secondary"}
+                        style={{ width: "max-content" }}
+                      >
+                        {offer.offerItems[0].offerType}
+                        <span className="badge bg-light text-dark">{offer.offerItems.length}</span>
+                      </Badge>
+                    ) : (
+                      <span>No Items</span> // Handle cases where offerItems is null or empty
+                    )}
                   </td>
 
                   <td>
@@ -212,7 +213,7 @@ const UpdateOffers = () => {
                         className="form-control"
                       >
                         <option value="">Select Discount Type</option>
-                        <option value="FIXED_AMOUNT">PRICE</option>
+                        <option value="PRICE">PRICE</option>
                         <option value="PERCENTAGE">PERCENTAGE</option>
                       </select>
                     ) : (
@@ -222,7 +223,7 @@ const UpdateOffers = () => {
                   <td>
                     {editingOfferId === offer.offerId
                       ? renderEditableCell('offerDiscountValue', offer.offerDiscountValue, 'number')
-                      : offer.offerDiscountType === 'FIXED_AMOUNT'
+                      : offer.offerDiscountType === 'PRICE'
                         ? `$${offer.offerDiscountValue}`
                         : `${offer.offerDiscountValue}%`}
                   </td>
@@ -231,6 +232,7 @@ const UpdateOffers = () => {
                       ? renderEditableCell('offerQuantity', offer.offerQuantity, 'number')
                       : offer.offerQuantity}
                   </td>
+                  <td>{offer.offerUsageQuantity}</td>
                   <td>
                     {offer.offerStartDate}
                   </td>

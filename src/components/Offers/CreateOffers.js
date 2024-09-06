@@ -141,6 +141,7 @@ const CreateOffer = () => {
       return false;
     }
   };
+  
   const handleItemIdChange = async (e) => {
     const itemId = e.target.value.trim();
     setFormData(prevState => ({
@@ -162,11 +163,16 @@ const CreateOffer = () => {
       setAvailableSkus([]);
     }
   };
-  const addItemId = () => {
+  const addItemId = async () => {
     if (formData.itemId) {
-      setNewItemIds(prevState => [...prevState, formData.itemId]);
-      setFormData(prevState => ({ ...prevState, itemId: '' }));
-      setItemValidationError('');
+      const isValid = await validateItemId(formData.itemId);
+      if (isValid) {
+        setNewItemIds(prevState => [...prevState, formData.itemId]);
+        setFormData(prevState => ({ ...prevState, itemId: '' }));
+        setItemValidationError('');
+      } else {
+        setItemValidationError('Invalid Item ID.');
+      }
     } else {
       setItemValidationError('Item ID cannot be empty.');
     }
@@ -206,7 +212,7 @@ const CreateOffer = () => {
         errors.offerEndDate = 'End Date must be greater than Start Date.';
       }
     }
-
+    if(!offerDetails.offerDescription) errors.offerDescription = 'Offer Description required'
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -259,7 +265,7 @@ const CreateOffer = () => {
 
               <div className="col-md-6">
                 <div className="form-group">
-                  <label htmlFor="offerQuantity">Offer Quantity</label>
+                  <label htmlFor="offerQuantity">Offer Usage Quantity</label>
                   <input
                     type="number"
                     id="offerQuantity"
@@ -342,8 +348,8 @@ const CreateOffer = () => {
               </div>
             </div>
 
-            <div className="row mb-3">
-              <div className={`col-md-${formData.offerType ? '6' : '12'}`}>
+            <div className="mb-3">
+              {/* <div className={`col-md-${formData.offerType ? '6' : '12'}`}> */}
                 <div className="form-group">
                   <label htmlFor="offerType">Offer Type</label>
                   <select
@@ -359,10 +365,10 @@ const CreateOffer = () => {
                     <option value="DISCOUNT_COUPONS">DISCOUNT COUPONS</option>
                   </select>
                 </div>
-              </div>
+              {/* </div> */}
 
               {formData.offerType === 'SKU_OFFER' && (
-                <div className="col-md-6">
+                // <div className="col-md-6">
                   <div className="form-group">
                     <label htmlFor="skuId">Enter SKUs</label>
                     <div className="input-group">
@@ -393,45 +399,45 @@ const CreateOffer = () => {
                     )}
                     {skuValidationError && <div className="invalid-feedback">{skuValidationError}</div>}
                   </div>
-                </div>
+                // </div>
               )}
 
               {formData.offerType === 'ITEM_OFFER' && (
-                <div className="col-md-6">
-                  <div className="form-group">
-                    <label htmlFor="itemId">Enter Item ID</label>
-                    <div className="input-group">
-                      <input
-                        type="text"
-                        id="itemId"
-                        value={formData.itemId}
-                        onChange={handleItemIdChange}
-                        className={`form-control ${itemValidationError ? 'is-invalid' : ''}`}
-                      />
-                      <span className="input-group-text">
-                        <IoAddCircleSharp
-                          onClick={addItemId}
-                          className={`input-icon ${!formData.itemId ? 'icon-disabled' : ''}`}
-                        />
-                      </span>
-                    </div>
-                    {newItemIds.length > 0 && (
-                      <div className="input-items-container mt-2">
-                        {newItemIds.map((itemId, index) => (
-                          <div key={index} className="input-item">
-                            <span>{itemId}</span>
-                            <MdCancel onClick={() => removeItemId(itemId)} className="remove-item-icon" />
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                    {itemValidationError && <div className="invalid-feedback">{itemValidationError}</div>}
-                  </div>
+                // <div className="col-md-6">
+                <div className="form-group">
+                <label htmlFor="itemId">Enter Item ID</label>
+                <div className="input-group">
+                  <input
+                    type="text"
+                    id="itemId"
+                    value={formData.itemId}
+                    onChange={handleItemIdChange}
+                    className={`form-control ${itemValidationError ? 'is-invalid' : ''}`}
+                  />
+                  <span className="input-group-text">
+                    <IoAddCircleSharp
+                      onClick={addItemId}
+                      className={`input-icon ${!formData.itemId ? 'icon-disabled' : ''}`}
+                    />
+                  </span>
                 </div>
+                {newItemIds.length > 0 && (
+                  <div className="input-items-container mt-2">
+                    {newItemIds.map((itemId, index) => (
+                      <div key={index} className="input-item">
+                        <span>{itemId}</span>
+                        <MdCancel onClick={() => removeItemId(itemId)} className="remove-item-icon" />
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {itemValidationError && <div className="invalid-feedback">{itemValidationError}</div>}
+              </div>
+                // </div>
               )}
 
               {formData.offerType === 'DISCOUNT_COUPONS' && (
-                <div className="col-md-6">
+                // <div className="col-md-6">
                   <div className="form-group">
                     <label htmlFor="couponCode">Enter Coupon Code</label>
                     <input
@@ -442,11 +448,11 @@ const CreateOffer = () => {
                       className="form-control"
                     />
                   </div>
-                </div>
+                // </div>
               )}
 
               {formData.offerType === 'ON_BILL_AMOUNT' && (
-                <div className="col-md-6">
+                // <div className="col-md-6">
                   <div className="form-group">
                     <label htmlFor="billAmount">Enter Bill Amount</label>
                     <input
@@ -457,7 +463,7 @@ const CreateOffer = () => {
                       className="form-control"
                     />
                   </div>
-                </div>
+                // </div>
               )}
             </div>
 

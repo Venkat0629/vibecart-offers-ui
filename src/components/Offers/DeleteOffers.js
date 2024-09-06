@@ -79,7 +79,7 @@ const DeleteOffers = () => {
   ) : [];
   const offerTypeColors = {
     "SKU_OFFER": "bg-primary",    // Blue background
-    "ITEM_OFFER": "bg-success",   // Green background
+    "ITEM_OFFER": "bg-info",   // Green background
     "ON_BILL_AMOUNT": "bg-secondary", // Yellow background
     "DISCOUNT_COUPONS": "bg-dark", // Red background
   };
@@ -124,7 +124,8 @@ const DeleteOffers = () => {
                 <th>Offer Type</th>
                 <th>Discount Type</th>
                 <th>Discount Value</th>
-                <th>Offer Quantity</th>
+                <th>Offer Usage Quantity</th>
+                <th>Offer Used Quantity</th>
                 <th>Start Date</th>
                 <th>Expiry Date</th>
                 <th>Offer Status</th>
@@ -163,6 +164,7 @@ const DeleteOffers = () => {
                       ? `$${offer.offerDiscountValue}`
                       : `${offer.offerDiscountValue}%`}</td>
                     <td>{offer.offerQuantity}</td>
+                    <td>{offer.offerUsageQuantity}</td>
                     <td>{offer.offerStartDate}</td>
                     <td>{offer.offerEndDate}</td>
                     <td>{offer.offerStatus}</td>
