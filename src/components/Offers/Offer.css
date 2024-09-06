@@ -435,3 +435,11 @@ h4 {
   color: red;
   margin-top: 5px;
 }
+.is-invalid {
+  border-color: #dc3545;
+}
+
+.invalid-feedbacks {
+  color: #dc3545;
+}
+
