@@ -246,6 +246,13 @@ const CreateOffer = () => {
     console.log(createOffer({ ...offerDetails, offerItems: newItem }))
     if (validateForm()) {
       dispatch(createOffer({ ...offerDetails, offerItems: newItem }));
+      resetForm()
+      setFormData({ 
+        offerType: "",
+        skuId: '',
+        itemId: '',
+        billAmount: 0.0,
+        couponCode: ""})
     } else {
       console.log('Validation Failed. Errors:', formErrors);
     }
@@ -412,7 +419,7 @@ const CreateOffer = () => {
                   {newskuIds.length > 0 && (
                     <div className="input-items-container mt-2">
                       {newskuIds.map((skuId, index) => (
-                        <div key={index} className="item-id">
+                        <div key={index} className="input-item">
                           <span>{skuId}</span>
                           <MdCancel onClick={() => removeSkuId(skuId)} className="remove-item-icon" />
                         </div>
