@@ -18,20 +18,23 @@ function Dashboard() {
     fetch(`${VIBECART_URI}`)
       .then(response => response.json())
       .then(data => {
+        // Filter out 'SHELVED' offers
+        const filteredData = data.filter(offer => offer.offerStatus !== "SHELVED");
+
         const currentDate = new Date();
         const threeMonthsAgo = new Date();
         threeMonthsAgo.setMonth(currentDate.getMonth() - 2);
 
-        const filteredData = data.filter(offer => {
-          const offerDate = new Date(offer.offerStartDate);
+        const filteredByDate = filteredData.filter(offer => {
+          const offerDate = new Date(offer.offerCreatedAt);
           return offerDate >= threeMonthsAgo && offerDate <= currentDate;
         });
 
         // Total offers count
-        setTotalOffers(data.length);
+        setTotalOffers(filteredByDate.length);
 
         // Monthly data processing
-        const monthlyData = filteredData.reduce((acc, offer) => {
+        const monthlyData = filteredByDate.reduce((acc, offer) => {
           const month = new Date(offer.offerStartDate).toLocaleString('default', { month: 'short' });
           if (!acc[month]) {
             acc[month] = { name: month, ProductOffers: 0, SeasonalPromotion: 0, PriceDiscounts: 0 };
@@ -70,21 +73,15 @@ function Dashboard() {
           { name: 'Product Offers', value: barChartData.reduce((sum, month) => sum + month.ProductOffers, 0) },
           { name: 'Seasonal Promotion', value: barChartData.reduce((sum, month) => sum + month.SeasonalPromotion, 0) },
           { name: 'Price Discounts', value: barChartData.reduce((sum, month) => sum + month.PriceDiscounts, 0) },
-        ]
-        // .filter(data => data.value > 0); 
-
-        // Ensure pie chart data has at least one segment
-        // if (pieChartData.length === 0) {
-        //   pieChartData.push({ name: 'No Data', value: 1 });
-        // }
+        ];
 
         // Update state
         setBarData(barChartData);
         setPieData(pieChartData);
 
         // Offer status counts
-        const active = data.filter(offer => offer.offerStatus === "ACTIVE").length;
-        const expired = data.filter(offer => offer.offerStatus === "EXPIRED").length;
+        const active = filteredData.filter(offer => offer.offerStatus === "ACTIVE").length;
+        const expired = filteredData.filter(offer => offer.offerStatus === "EXPIRED").length;
 
         setActiveOffers(active);
         setExpiredOffers(expired);
@@ -156,7 +153,7 @@ function Dashboard() {
               Most Used Offer Types
             </div>
             <div className="card-body p-3">
-            <ResponsiveContainer width="100%" height={300}>
+              <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
                   <Pie
                     data={pieData}
