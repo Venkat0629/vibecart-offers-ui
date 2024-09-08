@@ -57,6 +57,7 @@
 .content-container {
   display: flex;
   flex: 1;
+  margin-top: 57px;
 }
 
 .sidebar {
@@ -70,7 +71,6 @@
   flex: 1;
   margin-left: 200px; /* Adds space to the left for the fixed sidebar */
  padding: 20px; 
-  padding: 20px;
   background-color: #efefef;
   overflow-y: auto;
 }

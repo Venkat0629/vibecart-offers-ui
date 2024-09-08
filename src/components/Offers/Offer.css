@@ -213,7 +213,7 @@ input#entityIds {
 }
 .offers-delete-table th,
 .offers-delete-table td {
-  padding: 12px;
+  padding: 10px;
   text-align: center;
   border: 1px solid var(--border-color);
 }
