@@ -186,7 +186,7 @@ input#entityIds {
 .offers-update-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 14px;
+  font-size: 11px;
   background-color: #fff;
 }
 
@@ -203,7 +203,7 @@ input#entityIds {
 .offers-delete-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 14px;
+  font-size: 11px;
   background-color: #fff;
 
 }

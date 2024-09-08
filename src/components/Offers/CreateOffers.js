@@ -151,7 +151,7 @@ const CreateOffer = () => {
   };
   const validateItemId = async (itemId) => {
     try {
-      const response = await fetch(`http://localhost:8080/vibecart/ecom/items/item/${itemId}/skuIDs`);
+      const response = await fetch(`${ECOM_URI}/items/item/${itemId}/skuIDs`);
       const data = await response.json();
   
       if (response.ok && data.skuIDs) {
