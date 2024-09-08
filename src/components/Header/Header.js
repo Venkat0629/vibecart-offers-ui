@@ -7,7 +7,7 @@ const Header = ({ onLogout, isLoggedIn, isLoginPage }) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
 
     useEffect(() => {
-        const storedUsername = localStorage.getItem('username');
+        const storedUsername = localStorage.getItem('email');
         if (storedUsername) {
             setUsername(storedUsername);
         }
@@ -49,7 +49,7 @@ const Header = ({ onLogout, isLoggedIn, isLoginPage }) => {
                     >
                         <FaRegUserCircle className="user-icon" size={24} color='#dd1e25'/>
                         <div className={`dropdown-menu ${dropdownOpen ? 'show' : ''}`}>
-                            <a href="#" className="dropdown-item">{username} Profile</a>
+                            <a href="#" className="dropdown-item">{username}</a>
                             <a href="#" className="dropdown-item">Settings</a>
                             <a href="#" className="dropdown-item" onClick={handleLogout}>Sign out</a>
                         </div>

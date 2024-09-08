@@ -268,7 +268,7 @@ const UpdateOffers = () => {
               ))
             ) : (
               <tr>
-                <td colSpan="11" className="no-offers">
+                <td colSpan="12" className="no-offers">
                   No offers found
                 </td>
               </tr>

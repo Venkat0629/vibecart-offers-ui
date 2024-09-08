@@ -16,13 +16,13 @@ const DeleteOffers = () => {
 
   useEffect(() => {
     const fetchOffers = async () => {
-      const token = localStorage.getItem('token');
+      // const token = localStorage.getItem('token');
       try {
         const response = await axios.get(`${VIBECART_URI}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
+          // headers: {
+          //   'Authorization': `Bearer ${token}`,
+          //   'Content-Type': 'application/json',
+          // },
         });
         let mydata = response.data;
         const sortedOffers = mydata.sort((a, b) => new Date(b.offerCreatedAt) - new Date(a.offerCreatedAt));;
@@ -179,7 +179,7 @@ const DeleteOffers = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="11" className="no-offers">No Offers Found</td>
+                  <td colSpan="12" className="no-offers">No Offers Found</td>
                 </tr>
               )}
             </tbody>

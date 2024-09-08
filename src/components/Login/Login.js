@@ -7,11 +7,11 @@ import './Login.css'; // Ensure this file includes your custom styles
 
 const Login = () => {
   const [formData, setFormData] = useState({
-    username: '',
+    email: '',
     password: '',
-    role: 'ROLE_ADMIN',
+    role: 'ADMIN',
   });
-  const [errors, setErrors] = useState({ username: '', password: '', auth: '' });
+  const [errors, setErrors] = useState({ email: '', password: '', auth: '' });
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -24,11 +24,11 @@ const Login = () => {
   };
 
   const validateForm = () => {
-    const newErrors = { username: '', password: '' };
+    const newErrors = { email: '', password: '' };
     let isValid = true;
 
-    if (!formData.username) {
-      newErrors.username = 'Username is required';
+    if (!formData.email) {
+      newErrors.email = 'Email is required';
       isValid = false;
     }
 
@@ -43,59 +43,59 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setErrors({ username: '', password: '', auth: '' });
+    setErrors({ email: '', password: '', auth: '' });
+    console.log(formData)
     if (validateForm()) {
       try {
-        const response = await axios.post('http://localhost:5501/api/v1/vibe-cart/offers/login', {
-          username: formData.username,
-          password: formData.password,
-        });
+        // Validate user credentials using email and password
+        const response = await axios.post('http://localhost:6601/api/v1/vibe-cart/accounts/validate?type=user',formData);
 
-        const token = response.data.message; 
-        const { username } = formData;
-        localStorage.setItem('token', token); 
-        localStorage.setItem('username', username); 
-        dispatch(login()); 
-        navigate('/dashboard');
+        // Store the email in localStorage
+        localStorage.setItem('email', formData.email);
+        dispatch(login()); // Update auth state in Redux
+        navigate('/dashboard'); // Navigate to the dashboard
       } catch (error) {
         setErrors((prevErrors) => ({
           ...prevErrors,
-          auth: 'Invalid username or password',
+          auth: 'Invalid email or password', // Display an error message if validation fails
         }));
       }
     }
   };
 
   return (
-    <div className="login-container">
-      <div className="login-card">
+    <div className="container d-flex justify-content-center align-items-center max-vh-100">
+    <div className="card" style={{ width: '28rem' }}>
+      <div className="card-header text-center">
         <h2 className="login-title">Login</h2>
+      </div>
+      <div className="card-body">
         <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="username" className="form-label">Username</label>
+          <div className="form-group mb-3">
+            <label htmlFor="email" className="form-label">Email</label>
             <input
-              type="text"
-              className={`form-control ${errors.username ? 'error-highlight' : ''}`}
-              id="username"
-              name="username"
-              value={formData.username}
+              type="email"
+              className={`form-control ${errors.email ? 'is-invalid' : ''}`}
+              id="email"
+              name="email"
+              value={formData.email}
               onChange={handleChange}
             />
-            {errors.username && <div className="error-message">{errors.username}</div>}
+            {errors.email && <div className="invalid-feedback">{errors.email}</div>}
           </div>
-          <div className="form-group">
+          <div className="form-group mb-3">
             <label htmlFor="password" className="form-label">Password</label>
             <input
               type="password"
-              className={`form-control ${errors.password ? 'error-highlight' : ''}`}
+              className={`form-control ${errors.password ? 'is-invalid' : ''}`}
               id="password"
               name="password"
               value={formData.password}
               onChange={handleChange}
             />
-            {errors.password && <div className="error-message">{errors.password}</div>}
+            {errors.password && <div className="invalid-feedback">{errors.password}</div>}
           </div>
-          <div className="form-group">
+          <div className="form-group mb-3">
             <label htmlFor="role" className="form-label">User Role</label>
             <select
               id="role"
@@ -104,15 +104,17 @@ const Login = () => {
               value={formData.role}
               onChange={handleChange}
             >
-              <option value="ROLE_ADMIN">ROLE_ADMIN</option>
-              <option value="master">Master</option>
+              <option value="ADMIN">ADMIN</option>
+              <option value="GUEST">GUEST</option>
             </select>
           </div>
-          <button type="submit" className="login-button">Login</button>
-          {errors.auth && <div className="error-message">{errors.auth}</div>}
+          <button type="submit" className="btn  w-100">Login</button>
+          {errors.auth && <div className="text-danger text-center mt-2">{errors.auth}</div>}
         </form>
       </div>
     </div>
+  </div>
+  
   );
 };
 

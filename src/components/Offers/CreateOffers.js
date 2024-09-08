@@ -49,20 +49,25 @@ const CreateOffer = () => {
       const { skuID, itemID } = response.data;
   
       if (skuID && itemID) {
-        // Update state with new offer item
-        setNewItem(prevOfferItems => [
-          ...prevOfferItems,
-          {
-            offerType: formData.offerType,   // Assuming offerType is coming from formData
+        // Ensure SKU is not duplicated
+        setNewItem(prevOfferItems => {
+          const newItem = {
+            offerType: formData.offerType,
             offerOn: "SKU",
             skuId: skuID,
             itemId: itemID,
             billAmount: 0.0,
             couponCode: ""
-          }
-        ]);
+          };
   
-        // Set validation error to empty string
+          // Filter out duplicates
+          const uniqueItems = prevOfferItems.filter(
+            item => !(item.skuId === newItem.skuId && item.itemId === newItem.itemId)
+          );
+  
+          return [...uniqueItems, newItem];
+        });
+  
         setSkuValidationError('');
         return true;
   
@@ -71,14 +76,12 @@ const CreateOffer = () => {
         setSkuValidationError('Invalid SKU.');
         console.error('Invalid SKU');
         return false;
-
       }
     } catch (error) {
       // In case of an error, set validation error
       setSkuValidationError('Invalid SKU.');
       console.error('Invalid SKU', error);
       return false;
-
     }
   };
   
@@ -122,9 +125,9 @@ const CreateOffer = () => {
 
   };
   const addSku = async () => {
+    console.log(formData);
     if (formData.skuId) {
       try {
-        // Await the validation result
         const isValid = await validateSku(formData.skuId);
   
         console.log('Validation result:', isValid);  // Log the result of the validation
@@ -143,7 +146,6 @@ const CreateOffer = () => {
       console.log('SKU is required.');
     }
   };
-  
   const removeSkuId = (skuIdToRemove) => {
     setNewSkuIds(prevState => prevState.filter(id => id !== skuIdToRemove));
   };
@@ -151,24 +153,33 @@ const CreateOffer = () => {
     try {
       const response = await fetch(`http://localhost:8080/vibecart/ecom/items/item/${itemId}/skuIDs`);
       const data = await response.json();
+  
       if (response.ok && data.skuIDs) {
-        const myItems = data.skuIDs.map(sku => ({
-          offerType: formData.offerType,
-          offerOn: 'ITEM',
-          skuId: sku,
-          itemId: parseInt(itemId),
-          billAmount: 0.0,
-          couponCode: ''
-        }));
-        setNewItem(prevItems => [...prevItems, ...myItems])
-        console.log(prevItems => [...prevItems, ...myItems])
-
+        // Ensure items aren't duplicated
+        setNewItem(prevItems => {
+          const newItems = data.skuIDs.map(sku => ({
+            offerType: formData.offerType,
+            offerOn: 'ITEM',
+            skuId: sku,
+            itemId: parseInt(itemId),
+            billAmount: 0.0,
+            couponCode: ''
+          }));
+  
+          // Filter out duplicates
+          const uniqueItems = newItems.filter(
+            newItem => !prevItems.some(item => item.skuId === newItem.skuId && item.itemId === newItem.itemId)
+          );
+  
+          return [...prevItems, ...uniqueItems];
+        });
+  
         return true;
       } else {
         return false;
       }
     } catch (error) {
-      setItemValidationError('Error validating item ID:');
+      setItemValidationError('Error validating item ID.');
       return false;
     }
   };
@@ -205,10 +216,8 @@ const CreateOffer = () => {
       }
     } else {
       setItemValidationError('Item ID cannot be empty.');
-      console.log("nfmkdjv")
     }
   };
-
   const removeItemId = (itemIdToRemove) => {
     setNewItemIds(prevState => prevState.filter(id => id !== itemIdToRemove));
   };
@@ -246,13 +255,7 @@ const CreateOffer = () => {
     console.log(createOffer({ ...offerDetails, offerItems: newItem }))
     if (validateForm()) {
       dispatch(createOffer({ ...offerDetails, offerItems: newItem }));
-      resetForm()
-      setFormData({ 
-        offerType: "",
-        skuId: '',
-        itemId: '',
-        billAmount: 0.0,
-        couponCode: ""})
+    
     } else {
       console.log('Validation Failed. Errors:', formErrors);
     }
@@ -265,12 +268,19 @@ const CreateOffer = () => {
   }, [newItem.itemId]);
 
   useEffect(() => {
-
     if (success) {
       alert('Offer created successfully');
       dispatch(resetForm());
+      setFormData({
+        offerType: "",
+        skuId: '',
+        itemId: '',
+        billAmount: 0.0,
+        couponCode: ""
+      });
     }
-  }, [success, dispatch]);
+  }, [success, dispatch, setFormData]);
+  
 
   return (
     <div className="container offer-container">
@@ -301,7 +311,7 @@ const CreateOffer = () => {
                   <input
                     type="number"
                     id="offerQuantity"
-                    value={offerDetails.offerQuantity}
+                    value={offerDetails.offerQuantity || ''}
                     onChange={handleInputChange}
                     className={`form-control ${formErrors.offerQuantity ? 'is-invalid' : ''}`}
                   />
@@ -337,7 +347,7 @@ const CreateOffer = () => {
                     <input
                       type="number"
                       id="offerDiscountValue"
-                      value={offerDetails.offerDiscountValue}
+                      value={offerDetails.offerDiscountValue || ''}
                       onChange={handleInputChange}
                       className={`form-control ${formErrors.offerDiscountValue ? 'is-invalid' : ''}`}
                     />
