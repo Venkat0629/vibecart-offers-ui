@@ -15,6 +15,7 @@ import { IoMdCreate } from "react-icons/io";
 import { FaCircleCheck } from "react-icons/fa6";
 import { MdCancel } from "react-icons/md";
 import Badge from 'react-bootstrap/Badge';
+import { Modal, Button } from 'react-bootstrap';
 import { FaSearch } from "react-icons/fa";
 const UpdateOffers = () => {
   const dispatch = useDispatch();
@@ -22,6 +23,8 @@ const UpdateOffers = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [editingOfferId, setEditingOfferId] = useState(null);
   const [editableFields, setEditableFields] = useState({});
+  const [showModal, setShowModal] = useState(false);
+  const [selectedOffer, setSelectedOffer] = useState(null);
   useEffect(() => {
     const token = localStorage.getItem('token');
     dispatch(setToken(token));
@@ -50,7 +53,12 @@ const UpdateOffers = () => {
     setEditingOfferId(id);
     setEditableFields({ ...offerToEdit });
   };
+  const handleView = (offer) => {
+    setSelectedOffer(offer); // Set the selected offer details
+    setShowModal(true); // Show the modal
+  };
 
+  const handleClose = () => setShowModal(false);
   const handleUpdate = () => {
     const dataToSend = {
       ...editableFields,
@@ -176,11 +184,14 @@ const UpdateOffers = () => {
               filteredOffers.map((offer) => (
                 <tr key={offer.offerId}>
                   <td>
-                    <input
-                      type="checkbox"
-                      checked={offer.selected || false}
-                      onChange={() => handleCheckboxChange(offer.offerId)}
-                    />
+                    {offer.offerStatus !== 'SHELVED' && (
+                      <>
+                        <input
+                          type="checkbox"
+                          checked={offer.selected || false}
+                          onChange={() => handleCheckboxChange(offer.offerId)}
+                        /></>
+                    )}
                   </td>
                   <td>{offer.offerId}</td>
                   <td>
@@ -251,19 +262,26 @@ const UpdateOffers = () => {
                     )}
                   </td>
                   <td>
-                  {offer.offerStatus !== 'SHELVED' && (
-                      <>
-                    {editingOfferId === offer.offerId ? (
-                      <div className="actions-buttons">
-                        <FaCircleCheck onClick={handleUpdate} size={24} color='green' />
-                        <MdCancel onClick={cancelEdit} size={28} color='red' />
-                      </div>
-                    ) : (
-                      <button className="edit-button" onClick={() => handleEdit(offer.offerId)}>
-                        Edit
+                    {offer.offerStatus === 'SHELVED' ? (
+                      <button className="view-button" onClick={() => handleView(offer.offerName)}>
+                        View
                       </button>
-                    )}</>)}
+                    ) : (
+                      <>
+                        {editingOfferId === offer.offerId ? (
+                          <div className="actions-buttons">
+                            <FaCircleCheck onClick={handleUpdate} size={24} color="green" />
+                            <MdCancel onClick={cancelEdit} size={28} color="red" />
+                          </div>
+                        ) : (
+                          <button className="edit-button" onClick={() => handleEdit(offer.offerId)}>
+                            Edit
+                          </button>
+                        )}
+                      </>
+                    )}
                   </td>
+
                 </tr>
               ))
             ) : (
@@ -275,6 +293,21 @@ const UpdateOffers = () => {
             )}
           </tbody>
         </table>
+        <Modal show={showModal} onHide={handleClose} centered>
+        <Modal.Header className="border-0">
+          <Modal.Title className="w-100 text-center" style={{ fontWeight: 'bold', fontSize: '1.5rem' }}>
+            Offer Details
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="text-center" style={{ padding: '30px', fontSize: '1.2rem' }}>
+          {selectedOffer} has been deleted.
+        </Modal.Body>
+        <Modal.Footer className="border-0 justify-content-center">
+          <Button variant="danger" onClick={handleClose} style={{ padding: '10px 20px', fontSize: '1rem' }}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
       </div>
     </div>
   );

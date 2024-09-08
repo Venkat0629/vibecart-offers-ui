@@ -234,6 +234,7 @@ input#entityIds {
 }
 
 .edit-button,
+.view-button,
 .update-button,
 .cancel-button {
   border: none;
@@ -398,9 +399,9 @@ h4 {
 
 .input-icon {
   position: absolute;
-  right: 10px;
+  right: 5px;
   cursor: pointer;
-  color: #007bff;
+  color: #a4a4a4;
 }
 
 .icon-disabled {
