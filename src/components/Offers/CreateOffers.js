@@ -6,6 +6,7 @@ import { IoAddCircleSharp } from "react-icons/io5";
 import axios from 'axios';
 import './Offer.css'; // Import your custom CSS file
 import { ECOM_URI } from '../Services/service';
+import { useNavigate } from 'react-router-dom';
 
 const CreateOffer = () => {
   const dispatch = useDispatch();
@@ -25,6 +26,7 @@ const CreateOffer = () => {
     billAmount: 0.0,
     couponCode: ""
   });
+  const navigate = useNavigate()
   const fetchAvailableSkus = async (itemId) => {
     try {
       const response = await axios.get(`${ECOM_URI}/items/item/${itemId}/skuIDs`);
@@ -252,10 +254,16 @@ const CreateOffer = () => {
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
-    console.log(createOffer({ ...offerDetails, offerItems: newItem }))
+  
     if (validateForm()) {
-      dispatch(createOffer({ ...offerDetails, offerItems: newItem }));
-    
+      dispatch(createOffer({ ...offerDetails, offerItems: newItem }))
+        .then(() => {
+          alert('Offer created successfully');
+          navigate('/dashboard'); 
+        })
+        .catch((error) => {
+          console.log('Error dispatching createOffer:', error);
+        });
     } else {
       console.log('Validation Failed. Errors:', formErrors);
     }
@@ -269,7 +277,6 @@ const CreateOffer = () => {
 
   useEffect(() => {
     if (success) {
-      alert('Offer created successfully');
       dispatch(resetForm());
       setFormData({
         offerType: "",
