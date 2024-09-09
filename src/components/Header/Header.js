@@ -33,15 +33,10 @@ const Header = ({ onLogout, isLoggedIn, isLoginPage }) => {
                 <span className='bold'>VIBE</span><span>CART</span>
             </div>
 
-            <div
-                className="header-subtitle"
-                // style={{ marginRight: isLoginPage ? '11%' : '8%' }}
-            >
-                Offer Management System
-            </div>
+            <h5 className="header-subtitle"> Offer Management System</h5>
 
             <div className="header-actions">
-                {/* {isLoggedIn && ( */}
+                {isLoggedIn && (
                     <div
                         className="user-info"
                         onMouseEnter={handleMouseEnter}
@@ -54,7 +49,7 @@ const Header = ({ onLogout, isLoggedIn, isLoginPage }) => {
                             <a href="#" className="dropdown-item" onClick={handleLogout}>Sign out</a>
                         </div>
                     </div>
-                {/* )} */}
+                 )}
             </div>
         </header>
     );

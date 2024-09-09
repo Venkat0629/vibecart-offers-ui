@@ -293,7 +293,7 @@ const CreateOffer = () => {
     <div className="container offer-container">
       <div className="card offer-card">
         <div className="card-header bg-light-grey">
-          <h4 className="card-title">Add New Offer</h4>
+          <h4 className="card-title mt-10">Add New Offer</h4>
         </div>
         <div className="card-body">
           <form onSubmit={handleFormSubmit}>
