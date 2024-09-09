@@ -15,7 +15,7 @@ function Dashboard() {
   const [expiredOffers, setExpiredOffers] = useState(0);
 
   useEffect(() => {
-    fetch(`${VIBECART_URI}`)
+    fetch(`${VIBECART_URI}/api/v1/vibe-cart/offers`)
       .then(response => response.json())
       .then(data => {
         // Filter out 'SHELVED' offers

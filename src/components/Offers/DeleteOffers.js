@@ -18,7 +18,7 @@ const DeleteOffers = () => {
     const fetchOffers = async () => {
       // const token = localStorage.getItem('token');
       try {
-        const response = await axios.get(`${VIBECART_URI}`, {
+        const response = await axios.get(`${VIBECART_URI}/api/v1/vibe-cart/offers`, {
           // headers: {
           //   'Authorization': `Bearer ${token}`,
           //   'Content-Type': 'application/json',

@@ -8,7 +8,7 @@ export const createOffer = createAsyncThunk(
   async (offerDetails, { rejectWithValue }) => {
     try {
 
-      const response = await axios.post(`${VIBECART_URI}`, offerDetails, {
+      const response = await axios.post(`${VIBECART_URI}/api/v1/vibe-cart/offers`, offerDetails, {
       
       });
       return response.data;

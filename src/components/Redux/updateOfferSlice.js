@@ -4,7 +4,7 @@ import { VIBECART_URI } from '../Services/service';
 
 // Thunk to fetch offers
 export const fetchOffers = createAsyncThunk('updateOffers/fetchOffers', async (token) => {
-  const response = await axios.get(`${VIBECART_URI}`, {
+  const response = await axios.get(`${VIBECART_URI}/api/v1/vibe-cart/offers`, {
     // headers: {
     //   'Authorization': `Bearer ${token}`,
     //   'Content-Type': 'application/json',
@@ -18,7 +18,7 @@ export const fetchOffers = createAsyncThunk('updateOffers/fetchOffers', async (t
 
 // Thunk to update an offer
 export const updateOffer = createAsyncThunk('updateOffers/updateOffer', async ({ id, data, token }) => {
-  const response = await axios.put(`${VIBECART_URI}/${id}`, data, {
+  const response = await axios.put(`${VIBECART_URI}/api/v1/vibe-cart/offers${id}`, data, {
     headers: {
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json',
@@ -31,7 +31,7 @@ export const updateOffer = createAsyncThunk('updateOffers/updateOffer', async ({
 export const updateMultipleOffers = createAsyncThunk('updateOffers/updateMultipleOffers', async ({ ids, data, token }) => {
   await Promise.all(
     ids.map(id =>
-      axios.put(`${VIBECART_URI}/${id}`, data, {
+      axios.put(`${VIBECART_URI}/api/v1/vibe-cart/offers/${id}`, data, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',

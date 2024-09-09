@@ -5,7 +5,7 @@ import { MdCancel } from "react-icons/md";
 import { IoAddCircleSharp } from "react-icons/io5";
 import axios from 'axios';
 import './Offer.css'; // Import your custom CSS file
-import { ECOM_URI } from '../Services/service';
+import { VIBECART_URI } from '../Services/service';
 import { useNavigate } from 'react-router-dom';
 
 const CreateOffer = () => {
@@ -29,7 +29,7 @@ const CreateOffer = () => {
   const navigate = useNavigate()
   const fetchAvailableSkus = async (itemId) => {
     try {
-      const response = await axios.get(`${ECOM_URI}/items/item/${itemId}/skuIDs`);
+      const response = await axios.get(`${VIBECART_URI}/vibecart/ecom/items/item/${itemId}/skuIDs`);
       if (Array.isArray(response.data.skuIDs)) {
         setAvailableSkus(response.data.skuIDs.map(sku => ({ value: sku, label: sku })));
         setInvalidItemError('');
@@ -45,7 +45,7 @@ const CreateOffer = () => {
 
   const validateSku = async (sku) => {
     try {
-      const response = await axios.get(`${ECOM_URI}/products/product/sku-id/${sku}`);
+      const response = await axios.get(`${VIBECART_URI}/vibecart/ecom/products/product/sku-id/${sku}`);
   
       // Assuming response.data contains { skuID, itemID, ... }
       const { skuID, itemID } = response.data;
@@ -153,7 +153,7 @@ const CreateOffer = () => {
   };
   const validateItemId = async (itemId) => {
     try {
-      const response = await fetch(`${ECOM_URI}/items/item/${itemId}/skuIDs`);
+      const response = await fetch(`${VIBECART_URI}/vibecart/ecom/items/item/${itemId}/skuIDs`);
       const data = await response.json();
   
       if (response.ok && data.skuIDs) {

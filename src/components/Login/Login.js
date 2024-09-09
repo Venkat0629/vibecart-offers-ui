@@ -4,7 +4,7 @@ import axios from 'axios';
 import { useDispatch } from 'react-redux';
 import { login } from '../Redux/authSlice';
 import './Login.css'; // Ensure this file includes your custom styles
-import { ACCOUNT_SERVICE_URI } from '../Services/service';
+import { VIBECART_URI } from '../Services/service';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -49,7 +49,7 @@ const Login = () => {
     if (validateForm()) {
       try {
         // Validate user credentials using email and password
-      await axios.post(`${ACCOUNT_SERVICE_URI}/validate?type=user`,formData);
+      await axios.post(`${VIBECART_URI}/api/v1/vibe-cart/accounts/validate?type=user`,formData);
 
         // Store the email in localStorage
         localStorage.setItem('email', formData.email);
