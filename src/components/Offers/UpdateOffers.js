@@ -25,6 +25,8 @@ const UpdateOffers = () => {
   const [editableFields, setEditableFields] = useState({});
   const [showModal, setShowModal] = useState(false);
   const [selectedOffer, setSelectedOffer] = useState(null);
+  const [modalMessage, setModalMessage] = useState('');
+
   useEffect(() => {
     const token = localStorage.getItem('token');
     dispatch(setToken(token));
@@ -53,8 +55,9 @@ const UpdateOffers = () => {
     setEditingOfferId(id);
     setEditableFields({ ...offerToEdit });
   };
-  const handleView = (offer) => {
-    setSelectedOffer(offer); // Set the selected offer details
+  const handleView = (offerName, message) => {
+    setSelectedOffer(offerName); // Set the selected offer details
+    setModalMessage(message); // Set the custom modal message
     setShowModal(true); // Show the modal
   };
 
@@ -186,16 +189,6 @@ const UpdateOffers = () => {
             {filteredOffers.length > 0 ? (
               filteredOffers.map((offer) => (
                 <tr key={offer.offerId}>
-                  {/* <td>
-                    {offer.offerStatus !== 'SHELVED' && (
-                      <>
-                        <input
-                          type="checkbox"
-                          checked={offer.selected || false}
-                          onChange={() => handleCheckboxChange(offer.offerId)}
-                        /></>
-                    )}
-                  </td> */}
                   <td>{offer.offerId}</td>
                   <td>
                     {editingOfferId === offer.offerId
@@ -265,8 +258,9 @@ const UpdateOffers = () => {
                     )}
                   </td>
                   <td>
-                    {offer.offerStatus === 'SHELVED' ? (
-                      <button className="view-button" onClick={() => handleView(offer.offerName)}>
+                    {offer.offerStatus === 'SHELVED' || offer.offerStatus === 'EXPIRED' ? (
+                      <button className="view-button"
+                        onClick={() => handleView(offer.offerName, offer.offerStatus === 'SHELVED' ? 'has been deleted.' : 'has expired.')}>
                         View
                       </button>
                     ) : (
@@ -303,7 +297,7 @@ const UpdateOffers = () => {
             </Modal.Title>
           </Modal.Header>
           <Modal.Body className="text-center" style={{ padding: '30px', fontSize: '1.2rem' }}>
-            {selectedOffer} has been deleted.
+            {selectedOffer} {modalMessage}
           </Modal.Body>
           <Modal.Footer className="border-0 justify-content-center">
             <Button variant="danger" onClick={handleClose} style={{ padding: '10px 20px', fontSize: '1rem' }}>
