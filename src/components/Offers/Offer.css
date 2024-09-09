@@ -73,6 +73,7 @@ button[type="submit"] {
 
 button[type="submit"]:hover {
   background-color: #420c0b;
+  color: #fff;
 }
 
 .input-icon-wrapper {
@@ -447,3 +448,6 @@ h4 {
   color: #dc3545;
 }
 
+.select-all-wrapper {
+  display: flex;
+}

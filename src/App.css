@@ -56,9 +56,21 @@
 
 .content-container {
   display: flex;
-  flex: 1;
-  margin-top: 57px;
+  flex: 1 1;
+  padding-top: 60px;
+  background-image: url('https://tailwindui.com/img/beams-cover@95.jpg');
+  background-size: cover;
 }
+/* .login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  width: 100%;
+  margin: 0;
+} */
 
 .sidebar {
   width: 200px; /* Adjust as needed */

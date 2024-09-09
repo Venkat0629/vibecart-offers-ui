@@ -19,10 +19,10 @@ export const fetchOffers = createAsyncThunk('updateOffers/fetchOffers', async (t
 // Thunk to update an offer
 export const updateOffer = createAsyncThunk('updateOffers/updateOffer', async ({ id, data, token }) => {
   const response = await axios.put(`${VIBECART_URI}/api/v1/vibe-cart/offers/${id}`, data, {
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
+    // headers: {
+    //   'Authorization': `Bearer ${token}`,
+    //   'Content-Type': 'application/json',
+    // },
   });
   return response.data;
 });
@@ -32,10 +32,10 @@ export const updateMultipleOffers = createAsyncThunk('updateOffers/updateMultipl
   await Promise.all(
     ids.map(id =>
       axios.put(`${VIBECART_URI}/api/v1/vibe-cart/offers/${id}`, data, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+        // headers: {
+        //   'Authorization': `Bearer ${token}`,
+        //   'Content-Type': 'application/json',
+        // },
       })
     )
   );

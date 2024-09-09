@@ -73,12 +73,12 @@ const DeleteOffers = () => {
     }
   };
   const filteredOffers = Array.isArray(offers) ? offers
-  .filter(
-    (offer) =>
-      offer.offerStatus !== 'SHELVED' && // Exclude SHELVED offers
-      (offer.offerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      offer.offerId.toString().includes(searchTerm.toLowerCase()))
-  ) : [];
+    .filter(
+      (offer) =>
+        offer.offerStatus !== 'SHELVED' && // Exclude SHELVED offers
+        (offer.offerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          offer.offerId.toString().includes(searchTerm.toLowerCase()))
+    ) : [];
 
   const offerTypeColors = {
     "SKU_OFFER": "bg-primary",    // Blue background
@@ -104,17 +104,22 @@ const DeleteOffers = () => {
           </div>
 
           <div className="select-all-container">
-            <input
-              type="checkbox"
-              id="selectAll"
-              checked={selectAll}
-              onChange={handleSelectAllChange}
-            />
-            <label htmlFor="selectAll" className="select-all-label">Select All</label>
+            <div className="select-all-wrapper">
+              <input
+                type="checkbox"
+                id="selectAll"
+                checked={selectAll}
+                onChange={handleSelectAllChange}
+              />
+              <label htmlFor="selectAll" className="select-all-label">
+                Select All
+              </label>
+            </div>
             <button className="delete-selected-button" onClick={handleDeleteSelected}>
               Delete Selected
             </button>
           </div>
+
 
         </div>
         <div className="table-container">

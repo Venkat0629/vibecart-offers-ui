@@ -4,7 +4,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './Dashboard.css';
 import { VIBECART_URI } from '../Services/service';
 
-// New color scheme
 const COLORS = ['#dd1e25', '#fbb3b5', '#c1121f', '#f08080'];
 
 function Dashboard() {
@@ -18,7 +17,6 @@ function Dashboard() {
     fetch(`${VIBECART_URI}/api/v1/vibe-cart/offers`)
       .then(response => response.json())
       .then(data => {
-        // Filter out 'SHELVED' offers
         const filteredData = data.filter(offer => offer.offerStatus !== "SHELVED");
 
         const currentDate = new Date();
@@ -30,26 +28,28 @@ function Dashboard() {
           return offerDate >= threeMonthsAgo && offerDate <= currentDate;
         });
 
-        // Total offers count
         setTotalOffers(filteredByDate.length);
 
-        // Monthly data processing
         const monthlyData = filteredByDate.reduce((acc, offer) => {
           const month = new Date(offer.offerStartDate).toLocaleString('default', { month: 'short' });
           if (!acc[month]) {
             acc[month] = { name: month, ProductOffers: 0, SeasonalPromotion: 0, PriceDiscounts: 0 };
           }
+
+          // Use offerUsageQuantity instead of just counting offers
+          const usageQuantity = offer.offerUsageQuantity || 0;
+
           if (offer.offerItems && Array.isArray(offer.offerItems) && offer.offerItems.length > 0) {
             switch (offer.offerItems[0].offerType) {
               case 'ITEM_OFFER':
-                acc[month].ProductOffers += 1;
+                acc[month].ProductOffers += usageQuantity;
                 break;
               case 'SKU_OFFER':
-                acc[month].SeasonalPromotion += 1;
+                acc[month].SeasonalPromotion += usageQuantity;
                 break;
               case 'ON_BILL_AMOUNT':
               case 'DISCOUNT_COUPONS':
-                acc[month].PriceDiscounts += 1;
+                acc[month].PriceDiscounts += usageQuantity;
                 break;
               default:
                 break;
@@ -58,7 +58,6 @@ function Dashboard() {
           return acc;
         }, {});
 
-        // Ensure all months in the last 3 months are represented
         const allMonths = [];
         for (let m = 0; m < 3; m++) {
           const month = new Date();
@@ -75,11 +74,9 @@ function Dashboard() {
           { name: 'Price Discounts', value: barChartData.reduce((sum, month) => sum + month.PriceDiscounts, 0) },
         ];
 
-        // Update state
         setBarData(barChartData);
         setPieData(pieChartData);
 
-        // Offer status counts
         const active = filteredData.filter(offer => offer.offerStatus === "ACTIVE").length;
         const expired = filteredData.filter(offer => offer.offerStatus === "EXPIRED").length;
 
@@ -159,8 +156,8 @@ function Dashboard() {
                     data={pieData}
                     cx="50%"
                     cy="50%"
-                    innerRadius={0} // Ensures no inner radius gap
-                    outerRadius={90} // Adjust this value if necessary
+                    innerRadius={0}
+                    outerRadius={90}
                     fill={COLORS[3]}
                     paddingAngle={5}
                     dataKey="value"

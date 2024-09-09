@@ -146,26 +146,29 @@ const UpdateOffers = () => {
             <FaSearch className="search-icon" size={24} color='lightgrey' onClick={handleSearch} />
           </div>
         </div>
-        <div className="select-all-container">
-          <input
-            type="checkbox"
-            id="selectAll"
-            checked={offers.every(offer => offer.selected)}
-            onChange={handleSelectAllChange}
-          />
-          <label htmlFor="selectAll" className="select-all-label bg-light-grey">
-            Select All
-          </label>
+        {/* <div className="select-all-container">
+          <div className="select-all-wrapper">
+            <input
+              type="checkbox"
+              id="selectAll"
+              checked={offers.every((offer) => offer.selected)}
+              onChange={handleSelectAllChange}
+            />
+            <label htmlFor="selectAll" className="select-all-label bg-light-grey">
+              Select All
+            </label>
+          </div>
           <button className="update-all-button" onClick={handleUpdateSelected}>
             Update All
           </button>
-        </div>
+        </div> */}
+
       </div>
       <div className="table-container">
         <table className="offers-update-table">
           <thead>
             <tr>
-              <th>Select</th>
+              {/* <th>Select</th> */}
               <th>Offer ID</th>
               <th>Offer Name</th>
               <th>Offer Type</th>
@@ -183,7 +186,7 @@ const UpdateOffers = () => {
             {filteredOffers.length > 0 ? (
               filteredOffers.map((offer) => (
                 <tr key={offer.offerId}>
-                  <td>
+                  {/* <td>
                     {offer.offerStatus !== 'SHELVED' && (
                       <>
                         <input
@@ -192,7 +195,7 @@ const UpdateOffers = () => {
                           onChange={() => handleCheckboxChange(offer.offerId)}
                         /></>
                     )}
-                  </td>
+                  </td> */}
                   <td>{offer.offerId}</td>
                   <td>
                     {editingOfferId === offer.offerId
@@ -294,20 +297,20 @@ const UpdateOffers = () => {
           </tbody>
         </table>
         <Modal show={showModal} onHide={handleClose} centered>
-        <Modal.Header className="border-0">
-          <Modal.Title className="w-100 text-center" style={{ fontWeight: 'bold', fontSize: '1.5rem' }}>
-            Offer Details
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body className="text-center" style={{ padding: '30px', fontSize: '1.2rem' }}>
-          {selectedOffer} has been deleted.
-        </Modal.Body>
-        <Modal.Footer className="border-0 justify-content-center">
-          <Button variant="danger" onClick={handleClose} style={{ padding: '10px 20px', fontSize: '1rem' }}>
-            Close
-          </Button>
-        </Modal.Footer>
-      </Modal>
+          <Modal.Header className="border-0">
+            <Modal.Title className="w-100 text-center" style={{ fontWeight: 'bold', fontSize: '1.5rem' }}>
+              Offer Details
+            </Modal.Title>
+          </Modal.Header>
+          <Modal.Body className="text-center" style={{ padding: '30px', fontSize: '1.2rem' }}>
+            {selectedOffer} has been deleted.
+          </Modal.Body>
+          <Modal.Footer className="border-0 justify-content-center">
+            <Button variant="danger" onClick={handleClose} style={{ padding: '10px 20px', fontSize: '1rem' }}>
+              Close
+            </Button>
+          </Modal.Footer>
+        </Modal>
       </div>
     </div>
   );
