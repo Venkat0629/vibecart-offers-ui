@@ -1,0 +1,1 @@
+export const VIBECART_URI = "http://10.3.45.15:4001";

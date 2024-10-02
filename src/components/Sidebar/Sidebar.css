@@ -1,0 +1,97 @@
+/* .sidebar {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.sidebar-item {
+  margin: 10px 0;
+}
+
+.sidebar-item a {
+  text-decoration: none;
+  font-size: 18px;
+  padding: 8px 13px;
+  margin: 0px 9px;
+  display: block;
+  border-radius: 4px;
+  color: black;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.sidebar-item a.active {
+  width: 90%;
+  background-color: lightgray;
+}
+.sidebar-item a:hover {
+  width: 90%;
+  background-color: lightgray;
+}
+@media (max-width: 768px) {
+  .sidebar-container {
+    width: 150px; 
+  }
+
+  .sidebar-item a {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .sidebar-container {
+    width: 100%; 
+    position: relative;
+  }
+
+  .content-container {
+    padding: 10px; 
+  }
+
+  .sidebar-item a {
+    font-size: 14px;
+    padding: 6px;
+  }
+
+  .sidebar-item a.active {
+    font-size: 14px;
+    padding: 6px;
+  }
+} */
+.sidebar {
+  width: 200px;
+  background-color: #F5F5F5;
+  border-right: 1px solid var(--border-color);
+  /* padding: 20px; */
+  display: flex;
+  flex-direction: column;
+  position: fixed; /* Makes the sidebar fixed */
+  top: 10; /* Sticks it to the top of the viewport */
+  left: 0; /* Aligns it to the left of the page */
+  height: 100vh; /* Ensures it spans the full height of the viewport */
+  z-index: 999; /* Ensures the sidebar stays above other content */
+  overflow-y: auto; /* Enables scrolling if the sidebar content exceeds the height */
+}
+
+.sidebar-item {
+  margin-bottom: 15px;
+}
+
+.sidebar-item a {
+  text-decoration: none;
+  color: var(--text-color);
+  padding: 10px;
+  /* border-radius: var(--border-radius); */
+  display: block;
+}
+
+.sidebar-item a:hover {
+  background-color:#efefef;
+  color: var(--text-color);
+}
+
+.active-link {
+  background-color: #efefef;
+  color:var(--text-color);
+  font-weight: bold;
+}
