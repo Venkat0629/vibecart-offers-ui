@@ -21,6 +21,7 @@
     "recharts": "^2.12.7",
     "redux": "^5.0.1",
     "redux-thunk": "^3.1.0",
+    "vibecart-offers-ui": "file:",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
