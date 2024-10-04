@@ -1,1 +1,1 @@
-export const VIBECART_URI = "http://localhost:5001";
+export const VIBECART_URI = `http://${window.location.hostname}:5001`;

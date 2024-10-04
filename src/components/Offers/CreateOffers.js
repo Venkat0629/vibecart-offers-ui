@@ -15,10 +15,10 @@ const CreateOffer = () => {
   const [newItem, setNewItem] = useState([]);
   const [newItemIds, setNewItemIds] = useState([]); // Changed to store multiple item IDs
   const [newskuIds, setNewSkuIds] = useState([]); // Changed to store multiple item IDs
-  const [availableSkus, setAvailableSkus] = useState([]);
+  const [setAvailableSkus] = useState([]);
   const [skuValidationError, setSkuValidationError] = useState('');
   const [itemValidationError, setItemValidationError] = useState('');
-  const [invalidItemError, setInvalidItemError] = useState('');
+  const [setInvalidItemError] = useState('');
   const [formData, setFormData] = useState({
     offerType: "",
     skuId: '',
@@ -46,10 +46,10 @@ const CreateOffer = () => {
   const validateSku = async (sku) => {
     try {
       const response = await axios.get(`${VIBECART_URI}/api/v1/vibe-cart/app/products/product/sku-id/${sku}`);
-  
+
       // Assuming response.data contains { skuID, itemID, ... }
       const { skuID, itemID } = response.data;
-  
+
       if (skuID && itemID) {
         // Ensure SKU is not duplicated
         setNewItem(prevOfferItems => {
@@ -61,18 +61,18 @@ const CreateOffer = () => {
             billAmount: 0.0,
             couponCode: ""
           };
-  
+
           // Filter out duplicates
           const uniqueItems = prevOfferItems.filter(
             item => !(item.skuId === newItem.skuId && item.itemId === newItem.itemId)
           );
-  
+
           return [...uniqueItems, newItem];
         });
-  
+
         setSkuValidationError('');
         return true;
-  
+
       } else {
         // If skuID or itemID is missing, show error
         setSkuValidationError('Invalid SKU.');
@@ -86,7 +86,7 @@ const CreateOffer = () => {
       return false;
     }
   };
-  
+
 
 
   const handleInputChange = (e) => {
@@ -102,7 +102,7 @@ const CreateOffer = () => {
     if (id === 'skuId') {
       validateSku(value);
     }
-    
+
     if (id === 'couponCode' && formData.offerType === 'DISCOUNT_COUPONS') {
       const myData = [{
         offerType: formData.offerType,
@@ -131,9 +131,9 @@ const CreateOffer = () => {
     if (formData.skuId) {
       try {
         const isValid = await validateSku(formData.skuId);
-  
+
         console.log('Validation result:', isValid);  // Log the result of the validation
-  
+
         if (isValid) {
           setNewSkuIds(prevState => [...prevState, formData.skuId]);
           setFormData(prevState => ({ ...prevState, skuId: '' }));
@@ -155,7 +155,7 @@ const CreateOffer = () => {
     try {
       const response = await fetch(`${VIBECART_URI}/api/v1/vibe-cart/app/items/item/${itemId}/skuIDs`);
       const data = await response.json();
-  
+
       if (response.ok && data.skuIDs) {
         // Ensure items aren't duplicated
         setNewItem(prevItems => {
@@ -167,15 +167,15 @@ const CreateOffer = () => {
             billAmount: 0.0,
             couponCode: ''
           }));
-  
+
           // Filter out duplicates
           const uniqueItems = newItems.filter(
             newItem => !prevItems.some(item => item.skuId === newItem.skuId && item.itemId === newItem.itemId)
           );
-  
+
           return [...prevItems, ...uniqueItems];
         });
-  
+
         return true;
       } else {
         return false;
@@ -223,11 +223,11 @@ const CreateOffer = () => {
   const removeItemId = (itemIdToRemove) => {
     setNewItemIds(prevState => prevState.filter(id => id !== itemIdToRemove));
   };
-  
+
 
   const validateForm = () => {
     const errors = {};
-  
+
     if (!offerDetails.offerName) errors.offerName = 'Offer Name is required.';
     if (!offerDetails.offerDiscountType) errors.offerDiscountType = 'Discount Type is required.';
     if (offerDetails.offerDiscountType && offerDetails.offerDiscountValue <= 0) {
@@ -236,30 +236,30 @@ const CreateOffer = () => {
     if (offerDetails.offerQuantity <= 0) errors.offerQuantity = 'Quantity is required and must be greater than 0.';
     if (!offerDetails.offerStartDate) errors.offerStartDate = 'Start Date is required.';
     if (!offerDetails.offerEndDate) errors.offerEndDate = 'End Date is required.';
-  
+
     if (offerDetails.offerStartDate && offerDetails.offerEndDate) {
       if (new Date(offerDetails.offerStartDate) >= new Date(offerDetails.offerEndDate)) {
         errors.offerEndDate = 'End Date must be greater than Start Date.';
       }
     }
     if (!offerDetails.offerDescription) errors.offerDescription = 'Offer Description required';
-    
-  
+
+
     setFormErrors(errors);
 
     return Object.keys(errors).length === 0;
 
   };
-  
+
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
-  
+
     if (validateForm()) {
       dispatch(createOffer({ ...offerDetails, offerItems: newItem }))
         .then(() => {
           alert('Offer created successfully');
-          navigate('/dashboard'); 
+          navigate('/dashboard');
         })
         .catch((error) => {
           console.log('Error dispatching createOffer:', error);
@@ -268,7 +268,7 @@ const CreateOffer = () => {
       console.log('Validation Failed. Errors:', formErrors);
     }
   };
-  
+
   useEffect(() => {
     if (newItem.itemId) {
       fetchAvailableSkus(newItem.itemId);
@@ -287,7 +287,7 @@ const CreateOffer = () => {
       });
     }
   }, [success, dispatch, setFormData]);
-  
+
 
   return (
     <div className="container offer-container">
@@ -308,7 +308,7 @@ const CreateOffer = () => {
                     onChange={handleInputChange}
                     className={`form-control ${formErrors.offerName ? 'is-invalid' : ''}`}
                   />
-                  {formErrors.offerName ? (<div className="invalid-feedback">{formErrors.offerName}</div>):''}
+                  {formErrors.offerName ? (<div className="invalid-feedback">{formErrors.offerName}</div>) : ''}
                 </div>
               </div>
 

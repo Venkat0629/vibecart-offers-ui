@@ -45,7 +45,6 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrors({ email: '', password: '', auth: '' });
-    console.log(formData)
     if (validateForm()) {
       try {
         // Validate user credentials using email and password
@@ -58,7 +57,7 @@ const Login = () => {
       } catch (error) {
         setErrors((prevErrors) => ({
           ...prevErrors,
-          auth: 'Invalid email or password', // Display an error message if validation fails
+          auth: 'Invalid email or password',
         }));
       }
     }
@@ -96,19 +95,6 @@ const Login = () => {
             />
             {errors.password && <div className="invalid-feedback">{errors.password}</div>}
           </div>
-          {/* <div className="form-group mb-3"> */}
-            {/* <label htmlFor="role" className="form-label">User Role</label>
-            <select
-              id="role"
-              name="role"
-              className="form-select"
-              value={formData.role}
-              onChange={handleChange}
-            >
-              <option value="ADMIN">ADMIN</option>
-              <option value="GUEST">GUEST</option>
-            </select> */}
-          {/* </div> */}
           <button type="submit" className="btn  w-100">Login</button>
           {errors.auth && <div className="text-danger text-center mt-2">{errors.auth}</div>}
         </form>
